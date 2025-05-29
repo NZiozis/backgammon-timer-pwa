@@ -2,10 +2,40 @@
 <html lang="en">
   <head>
     <link rel="manifest" href="manifest.json" />
+    <link rel="stylesheet" href="main.css" />
   </head>
   <body>
-    <div>
-      <span>This is some test text</span>
+    <div class="main_container">
+      <div id="sidebar" class="sidebar">
+        <!-- This includes the settings buttons, score UI, and timers -->
+        <div id="player_one_settings">
+          <button class="settings_button">
+            <img src="icons/settings_dots.svg" alt="Player two setings" />
+          </button>
+        </div>
+        <div id="player_one_sidebar">
+          <div><span>Player One Time</span></div>
+        </div>
+        <div id="sidebar_score">
+          <div><span>0(0).0(0)</span></div>
+        </div>
+        <div id="player_two_sidebar">
+          <div><span>Player Two Time</span></div>
+        </div>
+        <div id="player_two_settings">
+          <button class="settings_button">
+            <img src="icons/settings_dots.svg" alt="Player two setings" />
+          </button>
+        </div>
+      </div>
+      <div class="players_container">
+        <div id="player_one" class="player_one_container">
+          <!-- This is where player one interacts with the UI -->
+        </div>
+        <div id="player_two" class="player_two_container">
+          <!-- This is where player one interacts with the UI -->
+        </div>
+      </div>
     </div>
   </body>
 </html>

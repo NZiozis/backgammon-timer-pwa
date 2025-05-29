@@ -1,0 +1,77 @@
+html {
+	height: 100%;
+}
+body {
+	--color-primary: #ffe9ce;
+  --color-primary-contrast: #000000;
+  --color-secondary: #308d43;
+  --color-secondary-contrast: #ffffff;
+	--color-disabled: light-gray;
+
+	height: 100%;
+	margin: 0;
+}
+
+.main_container {
+	display:flex;
+	flex-direction: column;
+	min-height: 100%;
+	min-width: 100%;
+
+	@media all and (orientation:portrait) {
+		flex-direction: row;
+	}
+}
+
+.players_container {
+	display: flex;
+	height: 100%;
+	width: 100%;
+}
+
+.sidebar {
+	display: flex;
+	align-content: center;
+	justify-content: space-between;
+
+	@media all and (orientation:portrait) {
+		flex-direction: column;
+		min-height: 100%;
+	}
+}
+
+.player_one_container {
+	/*transform: rotate(90deg);*/
+}
+
+.main_button {
+	background-color: var(--color-primary);
+	border-radius: 25px;
+	text-align: center;
+	padding: 0 20px;
+	border: 0;
+	line-height: 2.5;
+
+	box-shadow:
+    inset 2px 2px 3px rgba(255, 255, 255, 0.6),
+    inset -2px -2px 3px rgba(0, 0, 0, 0.6);
+}
+.main_button:hover {
+}
+.main_button:active {
+  box-shadow:
+    inset -2px -2px 3px rgba(255, 255, 255, 0.6),
+    inset 2px 2px 3px rgba(0, 0, 0, 0.6);
+}
+
+.settings_button {
+	border-radius: 100px;
+	background-color: transparent;
+	border: 0;
+	padding: 20px;
+	display: flex;
+	align-items: center;
+}
+.settings_button:active {
+	background-color: #00000022;
+}
