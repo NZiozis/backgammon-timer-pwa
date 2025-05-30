@@ -6,14 +6,14 @@ body {
   --color-primary-contrast: #000000;
   --color-secondary: #308d43;
   --color-secondary-contrast: #ffffff;
-	--color-disabled: light-gray;
+  --color-disabled: light-gray;
 
 	height: 100%;
 	margin: 0;
 }
 
 .main_container {
-	display:flex;
+	display: flex;
 	flex-direction: column;
 	min-height: 100%;
 	min-width: 100%;
@@ -25,6 +25,8 @@ body {
 
 .players_container {
 	display: flex;
+  flex: 1 1 auto;
+
 	height: 100%;
 	width: 100%;
 }
@@ -40,8 +42,20 @@ body {
 	}
 }
 
-.player_one_container {
-	/*transform: rotate(90deg);*/
+.player_container {
+  display: flex;
+  flex: 4 1 0;
+
+  /*TODO REMOVE*/
+  background-color: red;
+  /***/
+}
+.midline {
+  flex: 1 1 0;
+
+  /*TODO REMOVE*/
+  background-color: green;
+  /***/
 }
 
 .main_button {
