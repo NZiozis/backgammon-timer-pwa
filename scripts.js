@@ -12,7 +12,11 @@ document.querySelector(".install_banner_close").addEventListener("click", (e) =>
 });
 
 document.querySelector(".install_banner").addEventListener("click", (e) => {
-  alert("TEMP");
+  deferredPrompt.prompt();
+  deferredPrompt.userChoice.then((choiceResult) => {
+    deferredPrompt = null;
+    installBannerVisibility.style.display = "none";
+  });
 });
 
 // TODO ADD SOME ON CLICK ON INSTALL UI TO SHOW DEFERRED PROMPT
