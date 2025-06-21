@@ -12,6 +12,12 @@ body {
 	margin: 0;
 }
 
+.install_banner_container {
+  /*ALWAYS NONE UNLESS beforeinstallprompt EVENT IS DETECTED*/
+  /*display: none;*/
+  display: block;
+}
+
 .main_container {
 	display: flex;
 	flex-direction: column;
@@ -69,13 +75,14 @@ body {
 	box-shadow:
     inset 2px 2px 3px rgba(255, 255, 255, 0.6),
     inset -2px -2px 3px rgba(0, 0, 0, 0.6);
-}
-.main_button:hover {
-}
-.main_button:active {
-  box-shadow:
-    inset -2px -2px 3px rgba(255, 255, 255, 0.6),
-    inset 2px 2px 3px rgba(0, 0, 0, 0.6);
+
+  &:hover {
+  }
+  &:active {
+    box-shadow:
+      inset -2px -2px 3px rgba(255, 255, 255, 0.6),
+      inset 2px 2px 3px rgba(0, 0, 0, 0.6);
+  }
 }
 
 .settings_button {
@@ -85,7 +92,8 @@ body {
 	padding: 20px;
 	display: flex;
 	align-items: center;
-}
-.settings_button:active {
-	background-color: #00000022;
+
+  &:active {
+    background-color: #00000022;
+  }
 }
