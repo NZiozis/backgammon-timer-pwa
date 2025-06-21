@@ -1,3 +1,9 @@
+/**
+ * This hosts code that needs to run after the page loads, or code that would take
+ * a long time to load otherwise
+ *
+ * An example is the code necessary to show the Android PWA banner install prompt
+ */
 let deferredPrompt;
 const installBannerVisibility = document.querySelector(".install_banner_visibility")
 
