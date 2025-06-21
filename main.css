@@ -12,10 +12,14 @@ body {
 	margin: 0;
 }
 
-.install_banner_container {
+.install_banner_visibility {
   /*ALWAYS NONE UNLESS beforeinstallprompt EVENT IS DETECTED*/
   /*display: none;*/
   display: block;
+}
+
+.install_banner_container {
+  display: flex;
 }
 
 .main_container {

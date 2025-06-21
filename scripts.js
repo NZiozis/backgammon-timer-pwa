@@ -1,13 +1,17 @@
 let deferredPrompt;
-const installBanner = document.querySelector(".install_banner_container")
+const installBannerVisibility = document.querySelector(".install_banner_visibility")
 
 window.addEventListener("beforeinstallprompt", (e) => {
   e.preventDefault();
   deferredPrompt = e;
-  installBanner.style.display = "block";
+  installBannerVisibility.style.display = "block";
 });
 
-installBanner.addEventListener("click", (e) => {
+document.querySelector(".install_banner_close").addEventListener("click", (e) => {
+  installBannerVisibility.style.display = "none";
+});
+
+document.querySelector(".install_banner").addEventListener("click", (e) => {
   alert("TEMP");
 });
 
