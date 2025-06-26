@@ -1,10 +1,28 @@
 <!doctype html>
 <html lang="en">
   <head>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <link rel="icon" type="image/svg+xml" href="icons/icon.svg" />
     <link rel="manifest" href="manifest.json" />
     <link rel="stylesheet" href="main.css" />
     <script type="text/javascript" src="js/main.js"></script>
+    <template id="action-ui">
+      <div class="main_ui">
+        <button class="action_button double_button">Double</button>
+        <button class="action_button roll_button">Roll</button>
+      </div>
+      <div class="double_action_ui">
+        <div><span>Doubling cube image</span></div>
+        <div class="double_actions_button_container">
+          <button class="action_button double_action_button double_take_button">
+            Take
+          </button>
+          <button class="action_button double_action_button double_drop_button">
+            Drop
+          </button>
+        </div>
+      </div>
+    </template>
   </head>
   <body>
     <div class="install_banner_visibility">
@@ -48,12 +66,14 @@
       <div class="players_container">
         <div id="player_one" class="player_container">
           <!-- This is where player one interacts with the UI -->
+          <action-ui class="action_ui" data-player-id="1"/>
         </div>
         <div id="midline" class="midline">
           <!-- If the doubling cube is enabled, this is where it exists -->
         </div>
         <div id="player_two" class="player_container">
           <!-- This is where player one interacts with the UI -->
+          <action-ui class="action_ui" data-player-id="2"/>
         </div>
       </div>
     </div>

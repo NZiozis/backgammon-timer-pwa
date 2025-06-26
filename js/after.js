@@ -26,3 +26,16 @@ document.querySelector(".install_banner").addEventListener("click", (e) => {
 });
 
 // TODO ADD SOME ON CLICK ON INSTALL UI TO SHOW DEFERRED PROMPT
+
+customElements.define(
+	"action-ui",
+	class extends HTMLElement {
+		static get observedAttributes() { return ["data-player-id"]; }
+
+		constructor () {
+			super();
+			const template = document.getElementById("action-ui");
+			this.appendChild(template.content.cloneNode(true));
+		}
+	},
+);
