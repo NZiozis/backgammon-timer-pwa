@@ -140,14 +140,11 @@ body {
 
 /* Of main_ui and double_action_ui, only one should be present at the same time */
 .main_ui {
-  display: flex;
+  display: none;
   flex-direction: column;
   flex: 1 1 auto;
   align-items: center;
   justify-content: space-evenly;
-
-  /* TODO REMOVE WHEN DONE */
-  /*display: none;*/
 }
 .double_action_ui {
   display: none;
@@ -156,6 +153,13 @@ body {
   flex: 1 1 auto;
   align-items: center;
   justify-content: space-evenly;
+}
+.start_ui {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  flex: 1 1 auto;
 }
 
 .action_button {
@@ -183,6 +187,10 @@ body {
 
 .double_button {
   width: 45%;
+}
+
+.start_button {
+  width: 75%;
 }
 
 .double_actions_button_container{

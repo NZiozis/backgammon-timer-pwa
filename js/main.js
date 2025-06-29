@@ -72,8 +72,13 @@ function saveStateToLocalStorage(state) {
 
 let appState = { ...defaultState, ...loadStateFromLocalStorage() };
 
-function gamesValueToGamesNotation(gamesValue) {
-  return `(${gamesValue})`
+function formatGamesValue(value) {
+  return `(${value})`;
+}
+
+function formatReserveTime(value) {
+  const seconds = String(value).padStart(2, "0");
+  return `(${seconds})`;
 }
 
 function secondsToMinutesAndSeconds(secondsNumberValue) {
@@ -91,14 +96,14 @@ function setupUIBasedOnAppState() {
   document.getElementById("player_one_score").innerText =
     appState.storedGameState.playerOneGames;
   document.getElementById("player_one_games").innerText =
-    gamesValueToGamesNotation(appState.storedGameState.playerOneGames);
+    formatGamesValue(appState.storedGameState.playerOneGames);
   document.getElementById("player_one_total_time").innerText =
     secondsToMinutesAndSeconds(appState.storedGameState.playerOneTotalTimeRemainingSeconds);
 
   document.getElementById("player_two_score").innerText =
     appState.storedGameState.playerTwoGames;
   document.getElementById("player_two_games").innerText =
-    gamesValueToGamesNotation(appState.storedGameState.playerTwoGames);
+    formatGamesValue(appState.storedGameState.playerTwoGames);
   document.getElementById("player_two_total_time").innerText =
     secondsToMinutesAndSeconds(appState.storedGameState.playerTwoTotalTimeRemainingSeconds);
 }
