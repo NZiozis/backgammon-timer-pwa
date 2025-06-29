@@ -6,6 +6,12 @@
 ~
 
 
+## For next time
+- Use `setInterval()` to update the timer and the UI related to it.
+  - Update the UI in the callback given to the setInterval.
+  - The return value of the timer is used to cancel the update later on.
+    - EX when the player turn switches
+
 ## TODO
 - [ ] Customize names for players
 - [ ] Consider using templates for player_container ui

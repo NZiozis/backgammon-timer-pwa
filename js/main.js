@@ -108,6 +108,10 @@ function setupUIBasedOnAppState() {
     secondsToMinutesAndSeconds(appState.storedGameState.playerTwoTotalTimeRemainingSeconds);
 }
 
+function onClickStart() {
+  /** Start the game **/
+}
+
 document.addEventListener("DOMContentLoaded", () => {
   setupUIBasedOnAppState();
 });
