@@ -96,6 +96,11 @@ body {
   }
 }
 
+.sidebar_score {
+  display: inline-flex;
+  flex-direction: column;
+}
+
 #player_one {
   transform: rotate(180deg);
 }

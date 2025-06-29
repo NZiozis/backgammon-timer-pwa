@@ -1,4 +1,11 @@
 # backgammon-timer-pwa
+
+## Run for local development
+~bash
+  python3 -m http.server 8000
+~
+
+
 ## TODO
 - [ ] Customize names for players
 - [ ] Consider using templates for player_container ui
