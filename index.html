@@ -28,6 +28,15 @@
     </template>
   </head>
   <body>
+    <dialog id="settings_dialog">
+      <div class="settings_container">
+        <div class="settings_content">Settings content</div>
+        <div class="settings_buttons_row">
+          <button id="close_settings">Close</button>
+          <button id="save_settings">Save</button>
+        </div>
+      </div>
+    </dialog>
     <div class="install_banner_visibility">
       <div class="install_banner_container">
         <div class="install_banner_close">X</div>
@@ -52,8 +61,12 @@
           </button>
         </div>
         <div id="player_one_sidebar">
-          <div>
-            <span id="player_one_total_time">0:00</span>
+          <div class="player_sidebar">
+            <span id="player_one_name" class="player_name">Player One</span>
+            <div class="player_time_container">
+              <span id="player_one_total_time" class="player_time">0:00</span>
+              <span id="player_one_reserve_time" class="player_time">(0)</span>
+            </div>
           </div>
         </div>
         <div class="sidebar_score">
@@ -64,8 +77,12 @@
           <span id="player_two_games">(0)</span>
         </div>
         <div id="player_two_sidebar">
-          <div>
-            <span id="player_two_total_time">0:00</span>
+          <div class="player_sidebar">
+            <span id="player_two_name" class="player_name">Player Two</span>
+            <div class="player_time_container">
+              <span id="player_two_total_time" class="player_time">0:00</span>
+              <span id="player_two_reserve_time" class="player_time">(0)</span>
+            </div>
           </div>
         </div>
         <div id="player_two_settings">

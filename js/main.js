@@ -81,7 +81,7 @@ function formatReserveTime(value) {
   return `(${seconds})`;
 }
 
-function secondsToMinutesAndSeconds(secondsNumberValue) {
+function formatTotalTime(secondsNumberValue) {
   const minutes = String(Math.trunc(secondsNumberValue / 60)).padStart(2, "0");
   const seconds = String(secondsNumberValue % 60).padStart(2, "0");
 
@@ -98,20 +98,48 @@ function setupUIBasedOnAppState() {
   document.getElementById("player_one_games").innerText =
     formatGamesValue(appState.storedGameState.playerOneGames);
   document.getElementById("player_one_total_time").innerText =
-    secondsToMinutesAndSeconds(appState.storedGameState.playerOneTotalTimeRemainingSeconds);
+    formatTotalTime(appState.storedGameState.playerOneTotalTimeRemainingSeconds);
+  document.getElementById("player_one_reserve_time").innerText =
+    formatReserveTime(appState.storedGameState.playerOneReserveTimeRemainingSeconds);
+
 
   document.getElementById("player_two_score").innerText =
     appState.storedGameState.playerTwoGames;
   document.getElementById("player_two_games").innerText =
     formatGamesValue(appState.storedGameState.playerTwoGames);
   document.getElementById("player_two_total_time").innerText =
-    secondsToMinutesAndSeconds(appState.storedGameState.playerTwoTotalTimeRemainingSeconds);
+    formatTotalTime(appState.storedGameState.playerTwoTotalTimeRemainingSeconds);
+  document.getElementById("player_two_reserve_time").innerText =
+    formatReserveTime(appState.storedGameState.playerTwoReserveTimeRemainingSeconds);
+}
+
+function setupMainButtons() {
+  Array.from(document.getElementsByClassName("start_button")).forEach(function(it) {
+    it.onclick = onClickStart;
+  })
+}
+
+function setupSettingsDialog() {
+  const dialog = document.getElementById("settings_dialog");
+  const closeButton = document.getElementById("close_settings");
+  const saveButton = document.getElementById("save_settings");
+
+  closeButton.addEventListener("click", () => {
+    dialog.close();
+  });
+}
+
+function showSettings() {
+  document.getElementById("settings_dialog").showModal();
 }
 
 function onClickStart() {
   /** Start the game **/
+  showSettings();
 }
 
 document.addEventListener("DOMContentLoaded", () => {
   setupUIBasedOnAppState();
+  setupMainButtons();
+  setupSettingsDialog();
 });
