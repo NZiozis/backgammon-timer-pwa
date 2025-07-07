@@ -30,11 +30,43 @@
   <body>
     <dialog id="settings_dialog">
       <div class="settings_container">
-        <div class="settings_content">Settings content</div>
-        <div class="settings_buttons_row">
-          <button id="close_settings">Close</button>
-          <button id="save_settings">Save</button>
-        </div>
+        <form id="settings_form">
+          <div class="settings_content">
+            <div>
+              <label for="playerOneName">Player One:</label>
+              <input type="text" name="playerOneName" id="playerOneName"/>
+            </div>
+            <div>
+              <label for="playerTwoName">Player Two:</label>
+              <input type="text" name="playerTwoName" id="playerTwoName"/>
+            </div>
+            <div>
+              <label for="useCube">Use Doubling Cube:</label>
+              <input type="checkbox" name="useCube" id="useCube"/>
+            </div>
+            <div>
+              <label for="useDice">Use Dice:</label>
+              <input type="checkbox" name="useDice" id="useDice" />
+            </div>
+            <div>
+              <label for="scoreLimit">Score Limit:</label>
+              <input type="number" name="scoreLimit" min="0" id="scoreLimit" />
+            </div>
+            <div>
+              <label>Total Game Time:</label>
+              <input type="number" name="formTotalGameTimeMinutes" min="0" id="formTotalGameTimeMinutes"/>:
+              <input type="number" name="formTotalGameTimeSeconds" min="0" id="formTotalGameTimeSeconds"/>
+            </div>
+            <div>
+              <label for"reserveTimeSeconds">Reserve Time:</label>
+              <input type="number" name="reserveTimeSeconds" min="0" id="reserveTimeSeconds"/>
+            </div>
+          </div>
+          <div class="settings_buttons_row">
+            <button id="close_settings" type="button">Close</button>
+            <button id="save_settings" type="submit">Save</button>
+          </div>
+        </form>
       </div>
     </dialog>
     <div class="install_banner_visibility">
