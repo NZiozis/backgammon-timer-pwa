@@ -218,6 +218,9 @@ body {
 
   flex: 1 1 auto;
 }
+.roll_action_ui {
+  display: none;
+}
 
 .action_button {
 	border-radius: 25px;

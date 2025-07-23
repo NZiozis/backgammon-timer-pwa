@@ -10,6 +10,19 @@
       <div class="main_ui">
         <button class="action_button double_button">Double</button>
         <button class="action_button roll_button">Roll</button>
+        <!-- Add option to just click Done from here if playing without rolling -->
+        <!-- Make sure to hide Roll and show Done instead -->
+      </div>
+      <div class="roll_action_ui">
+        <div class="dice_roll">
+          <div><span>Dice 1</span></div>
+          <div><span>Dice 2</span></div>
+        </div>
+        <div>
+          <button class="action_button done_button">
+            Done
+          </button>
+        </div>
       </div>
       <div class="double_action_ui">
         <div><span>Doubling cube image</span></div>
@@ -88,7 +101,7 @@
       <div id="sidebar" class="sidebar">
         <!-- This includes the settings buttons, score UI, and timers -->
         <div id="player_one_settings">
-          <button class="settings_button">
+          <button id="player_one_settings_button" class="settings_button">
             <img src="icons/settings_dots.svg" alt="Player two setings" />
           </button>
         </div>

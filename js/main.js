@@ -95,6 +95,20 @@ function formatTotalTime(secondsNumberValue) {
   return `${minutes}:${seconds}`;
 }
 
+function isPlayerOneUIElement(element) {
+  /** Traverses the DOM tree in reverse until we find if the element clicked on belongs
+    * to player one. Throws an error if the playerId dataset property is never found
+    **/
+  let currentElement = element;
+  while (!currentElement.dataset.hasOwnProperty("playerId")) {
+    currentElement = currentElement.parentElement;
+    if (currentElement === null) {
+      // TODO throw an error
+    }
+  }
+  return currentElement.dataset["playerId"] === "1";
+}
+
 function setupUIBasedOnState(state) {
   /**
     * Takes the information present in appState (a globally defined variable) and
@@ -133,9 +147,13 @@ function setupUIBasedOnMatchParameters(parameters) {
     formatReserveTime(parameters.reserveTimeSeconds);
 }
 
-function setupMainButtons() {
-  Array.from(document.getElementsByClassName("start_button")).forEach(function(it) {
-    it.onclick = onClickStart;
+function onClickSettings() {
+  showSettings();
+}
+
+function setupSidebar() {
+  Array.from(document.getElementsByClassName("settings_button")).forEach(function(it) {
+    it.onclick = onClickSettings;
   })
 }
 
@@ -204,9 +222,45 @@ function showSettings() {
   document.getElementById("settings_dialog").showModal();
 }
 
+function toggleMainUIToShowForPlayer(showForPlayerOne) {
+  Array.from(document.getElementsByClassName("main_ui")).forEach(function(it) {
+    const isPlayerOneUI = isPlayerOneUIElement(it);
+
+    if (showForPlayerOne && isPlayerOneUI) {
+      it.style.display = "flex";
+    } else if (showForPlayerOne && !isPlayerOneUI) {
+      it.style.display = "none";
+    } else if (!showForPlayerOne && isPlayerOneUI) {
+      it.style.display = "none";
+    } else if (!showForPlayerOne && !isPlayerOneUI) {
+      it.style.display = "flex";
+    }
+  });
+}
+
+function onClickRoll(isPlayerOne) {
+  /** Hide the roll/double, show the dice for the active player, show done **/
+
+  // TODO Change this to actual function content when done testing
+  toggleMainUIToShowForPlayer(!isPlayerOne);
+}
+
 function onClickStart() {
   /** Start the game **/
-  showSettings();
+  Array.from(document.getElementsByClassName("start_ui")).forEach(function(it) {
+    it.style.display = "none";
+  });
+  const isPlayerOneFirst = false; // TODO Change this to a random function
+  toggleMainUIToShowForPlayer(isPlayerOneFirst);
+}
+
+function setupMainButtons() {
+  Array.from(document.getElementsByClassName("start_button")).forEach(function(it) {
+    it.onclick = onClickStart;
+  })
+  Array.from(document.getElementsByClassName("roll_button")).forEach(function(it) {
+    it.onclick = () => onClickRoll(isPlayerOneUIElement(it));
+  })
 }
 
 document.addEventListener("DOMContentLoaded", () => {
@@ -220,5 +274,6 @@ document.addEventListener("DOMContentLoaded", () => {
     setupUIBasedOnState(gameStateOnStartup);
   }
 
+  setupSidebar();
   setupMainButtons();
 });
