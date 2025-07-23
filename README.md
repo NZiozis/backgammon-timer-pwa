@@ -15,6 +15,7 @@
 ## TODO
 - [ ] Customize names for players
 - [ ] Consider using templates for player_container ui
+- [ ] Sidebar UI and timer
 
 ## NOTES
 - The default assumes that the app is being viewed in portrait mode

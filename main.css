@@ -218,8 +218,22 @@ body {
 
   flex: 1 1 auto;
 }
+
 .roll_action_ui {
   display: none;
+  flex-direction: column;
+
+  flex: 1 1 auto;
+  align-items: center;
+  justify-content: space-evenly;
+}
+
+.display_rolled_dice {
+  display: flex;
+}
+
+.done_button {
+  width: 55%;
 }
 
 .action_button {

@@ -222,6 +222,12 @@ function showSettings() {
   document.getElementById("settings_dialog").showModal();
 }
 
+function hideAllMainUI() {
+  Array.from(document.getElementsByClassName("main_ui")).forEach(function(it) {
+    it.style.display = "none";
+  });
+}
+
 function toggleMainUIToShowForPlayer(showForPlayerOne) {
   Array.from(document.getElementsByClassName("main_ui")).forEach(function(it) {
     const isPlayerOneUI = isPlayerOneUIElement(it);
@@ -238,11 +244,32 @@ function toggleMainUIToShowForPlayer(showForPlayerOne) {
   });
 }
 
-function onClickRoll(isPlayerOne) {
-  /** Hide the roll/double, show the dice for the active player, show done **/
-
-  // TODO Change this to actual function content when done testing
+function onClickDone(isPlayerOne) {
+  // NOTE: This hide step could be technically not necessary if we aren't doing rolling.
+  // Revisit if there is a bottleneck
+  Array.from(document.getElementsByClassName("roll_action_ui")).forEach(function (it) {
+    it.style.display = "none";
+  });
   toggleMainUIToShowForPlayer(!isPlayerOne);
+}
+
+function onClickRoll(isPlayerOne) {
+  /** Hide the roll/double, show roll_action_ui **/
+  hideAllMainUI();
+
+  Array.from(document.getElementsByClassName("roll_action_ui")).forEach(function (it) {
+    const isPlayerOneUI = isPlayerOneUIElement(it);
+
+    if (isPlayerOne && isPlayerOneUI) {
+      it.style.display = "flex";
+    } else if (isPlayerOne && !isPlayerOneUI) {
+      it.style.display = "none";
+    } else if (!isPlayerOne && isPlayerOneUI) {
+      it.style.display = "none";
+    } else if (!isPlayerOne && !isPlayerOneUI) {
+      it.style.display = "flex";
+    }
+  });
 }
 
 function onClickStart() {
@@ -250,7 +277,7 @@ function onClickStart() {
   Array.from(document.getElementsByClassName("start_ui")).forEach(function(it) {
     it.style.display = "none";
   });
-  const isPlayerOneFirst = false; // TODO Change this to a random function
+  const isPlayerOneFirst = false; // TODO Change this to a random function or option selected in settings when done testing
   toggleMainUIToShowForPlayer(isPlayerOneFirst);
 }
 
@@ -260,6 +287,9 @@ function setupMainButtons() {
   })
   Array.from(document.getElementsByClassName("roll_button")).forEach(function(it) {
     it.onclick = () => onClickRoll(isPlayerOneUIElement(it));
+  })
+  Array.from(document.getElementsByClassName("done_button")).forEach(function(it) {
+    it.onclick = () => onClickDone(isPlayerOneUIElement(it));
   })
 }
 
