@@ -133,18 +133,18 @@ function setupUIBasedOnState(state) {
     formatReserveTime(state.playerTwoReserveTimeRemainingSeconds);
 }
 
-function setupUIBasedOnMatchParameters(parameters) {
-  document.getElementById("player_one_name").innerText = parameters.playerOneName;
+function setupUIBasedOnMatchParameters() {
+  document.getElementById("player_one_name").innerText = matchParameters.playerOneName;
   document.getElementById("player_one_total_time").innerText =
-    formatTotalTime(parameters.totalGameTimeSeconds);
+    formatTotalTime(matchParameters.totalGameTimeSeconds);
   document.getElementById("player_one_reserve_time").innerText =
-    formatReserveTime(parameters.reserveTimeSeconds);
+    formatReserveTime(matchParameters.reserveTimeSeconds);
 
-  document.getElementById("player_two_name").innerText = parameters.playerTwoName;
+  document.getElementById("player_two_name").innerText = matchParameters.playerTwoName;
   document.getElementById("player_two_total_time").innerText =
-    formatTotalTime(parameters.totalGameTimeSeconds);
+    formatTotalTime(matchParameters.totalGameTimeSeconds);
   document.getElementById("player_two_reserve_time").innerText =
-    formatReserveTime(parameters.reserveTimeSeconds);
+    formatReserveTime(matchParameters.reserveTimeSeconds);
 }
 
 function onClickSettings() {
@@ -257,17 +257,17 @@ function onClickRoll(isPlayerOne) {
   /** Hide the roll/double, show roll_action_ui **/
   hideAllMainUI();
 
-  Array.from(document.getElementsByClassName("roll_action_ui")).forEach(function (it) {
+  Array.from(document.getElementsByClassName("roll_action_ui")).forEach(function (outerIt) {
     const isPlayerOneUI = isPlayerOneUIElement(it);
 
     if (isPlayerOne && isPlayerOneUI) {
-      it.style.display = "flex";
+      outerIt.style.display = "flex";
     } else if (isPlayerOne && !isPlayerOneUI) {
-      it.style.display = "none";
+      outerIt.style.display = "none";
     } else if (!isPlayerOne && isPlayerOneUI) {
-      it.style.display = "none";
+      outerIt.style.display = "none";
     } else if (!isPlayerOne && !isPlayerOneUI) {
-      it.style.display = "flex";
+      outerIt.style.display = "flex";
     }
   });
 }
@@ -282,21 +282,41 @@ function onClickStart() {
 }
 
 function setupMainButtons() {
+  /**
+    * NOTE: Show done_button in place of roll_button is not using dice. Classes are changed
+    * here so that later revealing/hiding of main_ui section has the correct results.
+    */
   Array.from(document.getElementsByClassName("start_button")).forEach(function(it) {
     it.onclick = onClickStart;
   })
+
   Array.from(document.getElementsByClassName("roll_button")).forEach(function(it) {
     it.onclick = () => onClickRoll(isPlayerOneUIElement(it));
+
+    if (!matchParameters.useDice) {
+      const newClassList = [...it.classList];
+      newClassList.push("default_hidden");
+      it.classList = newClassList.join(" ");
+    }
   })
+
   Array.from(document.getElementsByClassName("done_button")).forEach(function(it) {
     it.onclick = () => onClickDone(isPlayerOneUIElement(it));
+
+    if (!matchParameters.useDice) {
+      const newClassList = [...it.classList];
+      newClassList.splice(newClassList.findIndex((ele) => ele === "default_hidden", 1));
+      it.classList = newClassList.join(" ");
+    }
   })
 }
 
 document.addEventListener("DOMContentLoaded", () => {
-  const matchParametersOnStartup =
-    { ...matchParameters, ...loadStateFromLocalStorage(MATCH_PARAMETERS_KEY) };
-  setupUIBasedOnMatchParameters(matchParametersOnStartup);
+  const savedMatchParameters = loadStateFromLocalStorage(MATCH_PARAMETERS_KEY)
+  for (const property in savedMatchParameters) {
+    matchParameters[property] = savedMatchParameters[property];
+  }
+  setupUIBasedOnMatchParameters();
 
   const savedGameState = loadStateFromLocalStorage(GAME_STATE_KEY)
   const gameStateOnStartup = { ...gameState, ...savedGameState };

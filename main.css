@@ -47,6 +47,11 @@ body {
     justify-content: end;
   }
 }
+
+.default_hidden {
+  display: none;
+}
+
 /** **/
 
 .install_banner_visibility {
@@ -233,7 +238,7 @@ body {
 }
 
 .done_button {
-  width: 55%;
+  width: 65%;
 }
 
 .action_button {
