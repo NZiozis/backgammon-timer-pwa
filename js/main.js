@@ -253,21 +253,25 @@ function onClickDone(isPlayerOne) {
   toggleMainUIToShowForPlayer(!isPlayerOne);
 }
 
+function onClickDouble(isPlayerOne) {
+  // TODO Implement
+}
+
 function onClickRoll(isPlayerOne) {
   /** Hide the roll/double, show roll_action_ui **/
   hideAllMainUI();
 
-  Array.from(document.getElementsByClassName("roll_action_ui")).forEach(function (outerIt) {
+  Array.from(document.getElementsByClassName("roll_action_ui")).forEach(function (it) {
     const isPlayerOneUI = isPlayerOneUIElement(it);
 
     if (isPlayerOne && isPlayerOneUI) {
-      outerIt.style.display = "flex";
+      it.style.display = "flex";
     } else if (isPlayerOne && !isPlayerOneUI) {
-      outerIt.style.display = "none";
+      it.style.display = "none";
     } else if (!isPlayerOne && isPlayerOneUI) {
-      outerIt.style.display = "none";
+      it.style.display = "none";
     } else if (!isPlayerOne && !isPlayerOneUI) {
-      outerIt.style.display = "flex";
+      it.style.display = "flex";
     }
   });
 }
@@ -288,6 +292,16 @@ function setupMainButtons() {
     */
   Array.from(document.getElementsByClassName("start_button")).forEach(function(it) {
     it.onclick = onClickStart;
+  })
+
+  Array.from(document.getElementsByClassName("double_button")).forEach(function(it) {
+    it.onclick = () => onClickDouble(isPlayerOneUIElement(it));
+
+    if (!matchParameters.useCube) {
+      const newClassList = [...it.classList];
+      newClassList.push("default_hidden");
+      it.classList = newClassList.join(" ");
+    }
   })
 
   Array.from(document.getElementsByClassName("roll_button")).forEach(function(it) {
