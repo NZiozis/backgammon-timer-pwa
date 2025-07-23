@@ -287,6 +287,9 @@ function onClickStart() {
 
 function setupMainButtons() {
   /**
+    * The idea is to setup the right defaults (aka classes) on the buttons so that hiding
+    * and showning the sections has the desired results.
+    *
     * NOTE: Show done_button in place of roll_button is not using dice. Classes are changed
     * here so that later revealing/hiding of main_ui section has the correct results.
     */

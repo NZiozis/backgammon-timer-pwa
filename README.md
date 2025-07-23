@@ -5,7 +5,6 @@
   python3 -m http.server 8000
 ~
 
-
 ## For next time
 - Use `setInterval()` to update the timer and the UI related to it.
   - Update the UI in the callback given to the setInterval.
@@ -14,6 +13,7 @@
 
 ## TODO
 - [ ] Customize names for players
+- [ ] Consider if the player that doubles should have default_hidden or style=none applied to the button
 - [ ] Consider using templates for player_container ui
 - [ ] Sidebar UI and timer
 
