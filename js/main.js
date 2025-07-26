@@ -175,7 +175,9 @@ function setupUIBasedOnMatchParameters() {
 }
 
 function onClickSettings() {
-  showSettings();
+  setupSettingsDialog();
+
+  document.getElementById("settings_dialog").showModal();
 }
 
 function setupSidebar() {
@@ -241,12 +243,6 @@ function setupSettingsDialog() {
 
     dialog.close();
   });
-}
-
-function showSettings() {
-  setupSettingsDialog();
-
-  document.getElementById("settings_dialog").showModal();
 }
 
 function hideAllMainUI() {
