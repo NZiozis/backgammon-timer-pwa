@@ -161,8 +161,6 @@ function setupUIBasedOnGameState() {
 function setupUIBasedOnMatchParameters() {
   // This relies on the fact that the id of the option and the value of the option being
   // the same
-  document.getElementById(matchParameters.startType).selected = true;
-
   document.getElementById("player_one_name").innerText = matchParameters.playerOneName;
   document.getElementById("player_one_total_time").innerText =
     formatTotalTime(matchParameters.totalGameTimeSeconds);
@@ -192,6 +190,7 @@ function setupSettingsDialog() {
   const closeButton = document.getElementById("close_settings");
   const saveButton = document.getElementById("save_settings");
 
+  document.getElementById(matchParameters.startType).selected = true;
   document.getElementById("useCube").checked = matchParameters["useCube"]
   document.getElementById("useDice").checked = matchParameters["useDice"]
   document.getElementById("scoreLimit").value = matchParameters["scoreLimit"]
