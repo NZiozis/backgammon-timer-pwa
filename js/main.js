@@ -19,6 +19,11 @@ const CubeOwnership = {
   PLAYER_ONE: "PLAYER_ONE",
   PLAYER_TWO: "PLAYER_TWO",
 }
+const StartType = {
+  ALWAYS_RANDOM: "ALWAYS_RANDOM",
+  FIRST_GAME_RANDOM: "FIRST_GAME_RANDOM",
+  PLAYER_THAT_CLICKS: "PLAYER_THAT_CLICKS",
+}
 
 const matchParameters = {
   playerOneName: "Player One",
@@ -26,7 +31,7 @@ const matchParameters = {
 
   useCube: true,
   useDice: true,
-  useRandomPlayerStart: true, // 3 values: Always, First game, Never
+  startType: StartType.ALWAYS_RANDOM,
 
   totalGameTimeSeconds: TEN_MINUTES_IN_SECONDS, // 10 minutes
   reserveTimeSeconds: TEN_SECONDS,
@@ -55,6 +60,22 @@ const gameState = {
   playerTwoScore: 0,
   playerTwoTotalTimeRemainingSeconds: TEN_MINUTES_IN_SECONDS,
   playerTwoReserveTimeRemainingSeconds: TEN_SECONDS,
+}
+
+function resetGameState() {
+  gameState.currentPlayerTurn = PlayerTurn.NEUTRAL;
+  gameState.currentGameValue = 1;
+  gameState.cubeOwnership = CubeOwnership.NEUTRAL;
+
+  gameState.playerOneGames = 0;
+  gameState.playerOneScore = 0;
+  gameState.playerOneTotalTimeRemainingSeconds = matchParameters.totalGameTimeSeconds;
+  gameState.playerOneReserveTimeRemainingSeconds = matchParameters.reserveTimeSeconds;
+
+  gameState.playerTwoGames = 0;
+  gameState.playerTwoScore = 0;
+  gameState.playerTwoTotalTimeRemainingSeconds = matchParameters.totalGameTimeSeconds;
+  gameState.playerTwoReserveTimeRemainingSeconds = matchParameters.reserveTimeSeconds;
 }
 
 function loadStateFromLocalStorage(key) {
@@ -95,6 +116,10 @@ function formatTotalTime(secondsNumberValue) {
   return `${minutes}:${seconds}`;
 }
 
+function isFirstGame() {
+  return gameState.playerOneScore === 0 && gameState.playerTwoScore === 0;
+}
+
 function isPlayerOneUIElement(element) {
   /** Traverses the DOM tree in reverse until we find if the element clicked on belongs
     * to player one. Throws an error if the playerId dataset property is never found
@@ -109,31 +134,35 @@ function isPlayerOneUIElement(element) {
   return currentElement.dataset["playerId"] === "1";
 }
 
-function setupUIBasedOnState(state) {
+function setupUIBasedOnGameState() {
   /**
     * Takes the information present in appState (a globally defined variable) and
     * uses that to update the UI. This is typically only done on page load
     */
-  document.getElementById("player_one_score").innerText = state.playerOneGames;
+  document.getElementById("player_one_score").innerText = gameState.playerOneGames;
   document.getElementById("player_one_games").innerText =
-    formatGamesValue(state.playerOneGames);
+    formatGamesValue(gameState.playerOneGames);
   document.getElementById("player_one_total_time").innerText =
-    formatTotalTime(state.playerOneTotalTimeRemainingSeconds);
+    formatTotalTime(gameState.playerOneTotalTimeRemainingSeconds);
   document.getElementById("player_one_reserve_time").innerText =
-    formatReserveTime(state.playerOneReserveTimeRemainingSeconds);
+    formatReserveTime(gameState.playerOneReserveTimeRemainingSeconds);
 
 
   document.getElementById("player_two_score").innerText =
-    state.playerTwoGames;
+    gameState.playerTwoGames;
   document.getElementById("player_two_games").innerText =
-    formatGamesValue(state.playerTwoGames);
+    formatGamesValue(gameState.playerTwoGames);
   document.getElementById("player_two_total_time").innerText =
-    formatTotalTime(state.playerTwoTotalTimeRemainingSeconds);
+    formatTotalTime(gameState.playerTwoTotalTimeRemainingSeconds);
   document.getElementById("player_two_reserve_time").innerText =
-    formatReserveTime(state.playerTwoReserveTimeRemainingSeconds);
+    formatReserveTime(gameState.playerTwoReserveTimeRemainingSeconds);
 }
 
 function setupUIBasedOnMatchParameters() {
+  // This relies on the fact that the id of the option and the value of the option being
+  // the same
+  document.getElementById(matchParameters.startType).selected = true;
+
   document.getElementById("player_one_name").innerText = matchParameters.playerOneName;
   document.getElementById("player_one_total_time").innerText =
     formatTotalTime(matchParameters.totalGameTimeSeconds);
@@ -158,25 +187,22 @@ function setupSidebar() {
 }
 
 function setupSettingsDialog() {
-  const currentMatchParameters =
-    { ...matchParameters, ...loadStateFromLocalStorage(MATCH_PARAMETERS_KEY) };
   const dialog = document.getElementById("settings_dialog");
   const form = document.getElementById("settings_form");
   const closeButton = document.getElementById("close_settings");
   const saveButton = document.getElementById("save_settings");
 
+  document.getElementById("useCube").checked = matchParameters["useCube"]
+  document.getElementById("useDice").checked = matchParameters["useDice"]
+  document.getElementById("scoreLimit").value = matchParameters["scoreLimit"]
+  document.getElementById("playerOneName").value = matchParameters["playerOneName"]
+  document.getElementById("playerTwoName").value = matchParameters["playerTwoName"]
 
-  document.getElementById("useCube").checked = currentMatchParameters["useCube"]
-  document.getElementById("useDice").checked = currentMatchParameters["useDice"]
-  document.getElementById("scoreLimit").value = currentMatchParameters["scoreLimit"]
-  document.getElementById("playerOneName").value = currentMatchParameters["playerOneName"]
-  document.getElementById("playerTwoName").value = currentMatchParameters["playerTwoName"]
-
-  const currentTotalGameTimeSeconds = currentMatchParameters["totalGameTimeSeconds"]
+  const currentTotalGameTimeSeconds = matchParameters["totalGameTimeSeconds"]
   document.getElementById("formTotalGameTimeMinutes").value = currentTotalGameTimeSeconds / 60;
   document.getElementById("formTotalGameTimeSeconds").value = currentTotalGameTimeSeconds % 60;
 
-  document.getElementById("reserveTimeSeconds").value = currentMatchParameters["reserveTimeSeconds"]
+  document.getElementById("reserveTimeSeconds").value = matchParameters["reserveTimeSeconds"]
 
   closeButton.addEventListener("click", () => {
     dialog.close();
@@ -190,12 +216,12 @@ function setupSettingsDialog() {
       showFeedback("Please fill out all fields in the form", false);
       return;
     }
+
     let newTotalGameTime = 0;
-    const newMatchParameters = {};
     for (const element of form.elements) {
       if (element.name && element.type !== "submit" && element.type !== "button") {
         if (element.type === "checkbox") {
-          newMatchParameters[element.name] = element.checked;
+          matchParameters[element.name] = element.checked;
         }
         else if (element.name === "formTotalGameTimeMinutes") {
           newTotalGameTime += element.value * 60;
@@ -203,15 +229,17 @@ function setupSettingsDialog() {
         else if (element.name === "formTotalGameTimeMinutes") {
           newTotalGameTime += element.value;
         } else {
-          newMatchParameters[element.name] = element.value;
+          matchParameters[element.name] = element.value;
         }
       }
     }
-    newMatchParameters["totalGameTimeSeconds"] = newTotalGameTime;
+    matchParameters["totalGameTimeSeconds"] = newTotalGameTime;
 
-    // SHOULD ALSO UPDATE THE MAIN UI TO SHOW A NEW GAME WITH THE NEW SETTINGS
-    saveStateToLocalStorage(MATCH_PARAMETERS_KEY,
-      { ...currentMatchParameters, ...newMatchParameters });
+    saveStateToLocalStorage(MATCH_PARAMETERS_KEY, matchParameters);
+
+    resetGameState();
+    resetUI();
+
     dialog.close();
   });
 }
@@ -276,12 +304,26 @@ function onClickRoll(isPlayerOne) {
   });
 }
 
-function onClickStart() {
-  /** Start the game **/
+function onClickStart(didPlayerOneClick) {
+  /** Start the game
+    * If startType, then it's a coin flip to start
+    * Otherwise, the player that clicked the button does first
+    **/
   Array.from(document.getElementsByClassName("start_ui")).forEach(function(it) {
     it.style.display = "none";
   });
-  const isPlayerOneFirst = false; // TODO Change this to a random function or option selected in settings when done testing
+
+  let isPlayerOneFirst;
+  if (matchParameters.startType === StartType.ALWAYS_RANDOM
+      || (matchParameters.startType === StartType.FIRST_GAME_RANDOM
+          && isFirstGame()
+       )
+  ) {
+    isPlayerOneFirst = Math.floor(Math.random() * 10) % 2 === 0;
+  } else {
+    isPlayerOneFirst = didPlayerOneClick;
+  }
+
   toggleMainUIToShowForPlayer(isPlayerOneFirst);
 }
 
@@ -294,7 +336,7 @@ function setupMainButtons() {
     * here so that later revealing/hiding of main_ui section has the correct results.
     */
   Array.from(document.getElementsByClassName("start_button")).forEach(function(it) {
-    it.onclick = onClickStart;
+    it.onclick = () => onClickStart(isPlayerOneUIElement(it));
   })
 
   Array.from(document.getElementsByClassName("double_button")).forEach(function(it) {
@@ -328,6 +370,24 @@ function setupMainButtons() {
   })
 }
 
+function resetUI() {
+  setupUIBasedOnMatchParameters();
+  setupUIBasedOnGameState();
+
+  Array.from(document.getElementsByClassName("main_ui")).forEach(function(it) {
+    it.style.display = "none";
+  });
+  Array.from(document.getElementsByClassName("roll_action_ui")).forEach(function(it) {
+    it.style.display = "none";
+  });
+  Array.from(document.getElementsByClassName("double_action_ui")).forEach(function(it) {
+    it.style.display = "none";
+  });
+  Array.from(document.getElementsByClassName("start_ui")).forEach(function(it) {
+    it.style.display = "flex";
+  });
+}
+
 document.addEventListener("DOMContentLoaded", () => {
   const savedMatchParameters = loadStateFromLocalStorage(MATCH_PARAMETERS_KEY)
   for (const property in savedMatchParameters) {
@@ -335,11 +395,12 @@ document.addEventListener("DOMContentLoaded", () => {
   }
   setupUIBasedOnMatchParameters();
 
+  resetGameState();
   const savedGameState = loadStateFromLocalStorage(GAME_STATE_KEY)
-  const gameStateOnStartup = { ...gameState, ...savedGameState };
-  if (savedGameState) {
-    setupUIBasedOnState(gameStateOnStartup);
+  for (const property in savedGameState) {
+    gameState[property] = savedGameState[property];
   }
+  setupUIBasedOnGameState();
 
   setupSidebar();
   setupMainButtons();

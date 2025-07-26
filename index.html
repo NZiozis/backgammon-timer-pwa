@@ -55,9 +55,16 @@
               <input type="checkbox" name="useCube" id="useCube"/>
             </div>
             <div>
-              <label for="useDice">Use Dice:</label>
+              <label for="useDice">Use Computer Dice:</label>
               <input type="checkbox" name="useDice" id="useDice" />
             </div>
+            <div>
+              <label for="startType">Start Type:</label>
+              <select id="startType" name="startType">
+                <option id="ALWAYS_RANDOM" value="ALWAYS_RANDOM">Always random</option>
+                <option id="FIRST_GAME_RANDOM" value="FIRST_GAME_RANDOM">First game random</option>
+                <option id="PLAYER_THAT_CLICKS" value="PLAYER_THAT_CLICKS">Player that clicks</option>
+              </select>
             <div>
               <label for="scoreLimit">Score Limit:</label>
               <input type="number" name="scoreLimit" min="0" id="scoreLimit" />

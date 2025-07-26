@@ -12,10 +12,11 @@
     - EX when the player turn switches
 
 ## TODO
-- [ ] Customize names for players
-- [ ] Consider if the player that doubles should have default_hidden or style=none applied to the button
+- [X] Customize names for players
+- [X] Consider if the player that doubles should have default_hidden or style=none applied to the button
 - [ ] Consider using templates for player_container ui
 - [ ] Sidebar UI and timer
+- [ ] Alert that changing settings mid-game will cause the game to reset
 
 ## NOTES
 - The default assumes that the app is being viewed in portrait mode
