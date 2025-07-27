@@ -14,14 +14,15 @@
 ## TODO
 - [X] Customize names for players
 - [X] Consider if the player that doubles should have default_hidden or style=none applied to the button
-- [ ] Sidebar UI and timer
-- [ ] Alert that changing settings mid-game will cause the game to reset
 - [ ] Concede UI
-- [ ] Working Timers
+- [ ] Alert that changing settings mid-game will cause the game to reset
+- [X] Working Timers
 - [ ] Style pass
 - [ ] Work for larger/landscape screens
-- [ ] On click double
+- [ ] Dice for when rolling is active
+- [ ] Double UI
 - [ ] Double drop/take
+- [ ] Something to happen when timer reaches 0
 
 ## NOTES
 - The default assumes that the app is being viewed in portrait mode

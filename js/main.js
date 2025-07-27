@@ -5,8 +5,9 @@
 const MATCH_PARAMETERS_KEY = "matchParameters";
 const GAME_STATE_KEY = "gameState";
 
-const TEN_MINUTES_IN_SECONDS = 600;
-const TEN_SECONDS = 10;
+const ONE_SECOND_IN_MS = 1000;
+const TEN_MINUTES_IN_MS = 600000;
+const TEN_SECONDS_IN_MS = 10000;
 
 const PlayerTurn = {
   NEUTRAL: "NEUTRAL",
@@ -33,8 +34,8 @@ const matchParameters = {
   useDice: true,
   startType: StartType.ALWAYS_RANDOM,
 
-  totalGameTimeSeconds: TEN_MINUTES_IN_SECONDS, // 10 minutes
-  reserveTimeSeconds: TEN_SECONDS,
+  totalGameTimeMs: TEN_MINUTES_IN_MS,
+  reserveTimeMs: TEN_SECONDS_IN_MS,
   scoreLimit: 7
 }
 
@@ -53,13 +54,15 @@ const gameState = {
 
   playerOneGames: 0,
   playerOneScore: 0,
-  playerOneTotalTimeRemainingSeconds: TEN_MINUTES_IN_SECONDS,
-  playerOneReserveTimeRemainingSeconds: TEN_SECONDS,
+  playerOneTotalTimeRemainingMs: TEN_MINUTES_IN_MS,
+  playerOneReserveTimeRemainingMs: TEN_SECONDS_IN_MS,
+  playerOneTimeoutId: null,
 
   playerTwoGames: 0,
   playerTwoScore: 0,
-  playerTwoTotalTimeRemainingSeconds: TEN_MINUTES_IN_SECONDS,
-  playerTwoReserveTimeRemainingSeconds: TEN_SECONDS,
+  playerTwoTotalTimeRemainingMs: TEN_MINUTES_IN_MS,
+  playerTwoReserveTimeRemainingMs: TEN_SECONDS_IN_MS,
+  playerTwoTimeoutId: null,
 }
 
 function resetGameState() {
@@ -69,13 +72,13 @@ function resetGameState() {
 
   gameState.playerOneGames = 0;
   gameState.playerOneScore = 0;
-  gameState.playerOneTotalTimeRemainingSeconds = matchParameters.totalGameTimeSeconds;
-  gameState.playerOneReserveTimeRemainingSeconds = matchParameters.reserveTimeSeconds;
+  gameState.playerOneTotalTimeRemainingMs = matchParameters.totalGameTimeMs;
+  gameState.playerOneReserveTimeRemainingMs = matchParameters.reserveTimeMs;
 
   gameState.playerTwoGames = 0;
   gameState.playerTwoScore = 0;
-  gameState.playerTwoTotalTimeRemainingSeconds = matchParameters.totalGameTimeSeconds;
-  gameState.playerTwoReserveTimeRemainingSeconds = matchParameters.reserveTimeSeconds;
+  gameState.playerTwoTotalTimeRemainingMs = matchParameters.totalGameTimeMs;
+  gameState.playerTwoReserveTimeRemainingMs = matchParameters.reserveTimeMs;
 }
 
 function loadStateFromLocalStorage(key) {
@@ -104,14 +107,14 @@ function formatGamesValue(value) {
   return `(${value})`;
 }
 
-function formatReserveTime(value) {
-  const seconds = String(value).padStart(2, "0");
+function formatReserveTime(msNumberValue) {
+  const seconds = String(msNumberValue / 1000).padStart(2, "0");
   return `(${seconds})`;
 }
 
-function formatTotalTime(secondsNumberValue) {
-  const minutes = String(Math.trunc(secondsNumberValue / 60)).padStart(2, "0");
-  const seconds = String(secondsNumberValue % 60).padStart(2, "0");
+function formatTotalTime(msNumberValue) {
+  const minutes = String(Math.trunc(msNumberValue / 60000)).padStart(2, "0");
+  const seconds = String(msNumberValue % 60000 / 1000).padStart(2, "0");
 
   return `${minutes}:${seconds}`;
 }
@@ -143,9 +146,9 @@ function setupUIBasedOnGameState() {
   document.getElementById("player_one_games").innerText =
     formatGamesValue(gameState.playerOneGames);
   document.getElementById("player_one_total_time").innerText =
-    formatTotalTime(gameState.playerOneTotalTimeRemainingSeconds);
+    formatTotalTime(gameState.playerOneTotalTimeRemainingMs);
   document.getElementById("player_one_reserve_time").innerText =
-    formatReserveTime(gameState.playerOneReserveTimeRemainingSeconds);
+    formatReserveTime(gameState.playerOneReserveTimeRemainingMs);
 
 
   document.getElementById("player_two_score").innerText =
@@ -153,9 +156,9 @@ function setupUIBasedOnGameState() {
   document.getElementById("player_two_games").innerText =
     formatGamesValue(gameState.playerTwoGames);
   document.getElementById("player_two_total_time").innerText =
-    formatTotalTime(gameState.playerTwoTotalTimeRemainingSeconds);
+    formatTotalTime(gameState.playerTwoTotalTimeRemainingMs);
   document.getElementById("player_two_reserve_time").innerText =
-    formatReserveTime(gameState.playerTwoReserveTimeRemainingSeconds);
+    formatReserveTime(gameState.playerTwoReserveTimeRemainingMs);
 }
 
 function setupUIBasedOnMatchParameters() {
@@ -163,15 +166,15 @@ function setupUIBasedOnMatchParameters() {
   // the same
   document.getElementById("player_one_name").innerText = matchParameters.playerOneName;
   document.getElementById("player_one_total_time").innerText =
-    formatTotalTime(matchParameters.totalGameTimeSeconds);
+    formatTotalTime(matchParameters.totalGameTimeMs);
   document.getElementById("player_one_reserve_time").innerText =
-    formatReserveTime(matchParameters.reserveTimeSeconds);
+    formatReserveTime(matchParameters.reserveTimeMs);
 
   document.getElementById("player_two_name").innerText = matchParameters.playerTwoName;
   document.getElementById("player_two_total_time").innerText =
-    formatTotalTime(matchParameters.totalGameTimeSeconds);
+    formatTotalTime(matchParameters.totalGameTimeMs);
   document.getElementById("player_two_reserve_time").innerText =
-    formatReserveTime(matchParameters.reserveTimeSeconds);
+    formatReserveTime(matchParameters.reserveTimeMs);
 }
 
 function onClickSettings() {
@@ -199,11 +202,11 @@ function setupSettingsDialog() {
   document.getElementById("playerOneName").value = matchParameters["playerOneName"]
   document.getElementById("playerTwoName").value = matchParameters["playerTwoName"]
 
-  const currentTotalGameTimeSeconds = matchParameters["totalGameTimeSeconds"]
-  document.getElementById("formTotalGameTimeMinutes").value = currentTotalGameTimeSeconds / 60;
-  document.getElementById("formTotalGameTimeSeconds").value = currentTotalGameTimeSeconds % 60;
+  const currentTotalGameTimeMs = matchParameters["totalGameTimeMs"]
+  document.getElementById("formTotalGameTimeMinutes").value = Math.floor(currentTotalGameTimeMs / 60000);
+  document.getElementById("formTotalGameTimeSeconds").value = currentTotalGameTimeMs % 60000 / 1000;
 
-  document.getElementById("reserveTimeSeconds").value = matchParameters["reserveTimeSeconds"]
+  document.getElementById("formReserveTimeSeconds").value = matchParameters["reserveTimeMs"] / 1000;
 
   closeButton.addEventListener("click", () => {
     dialog.close();
@@ -218,23 +221,25 @@ function setupSettingsDialog() {
       return;
     }
 
-    let newTotalGameTime = 0;
+    let newTotalGameTimeSeconds = 0;
     for (const element of form.elements) {
       if (element.name && element.type !== "submit" && element.type !== "button") {
         if (element.type === "checkbox") {
           matchParameters[element.name] = element.checked;
         }
         else if (element.name === "formTotalGameTimeMinutes") {
-          newTotalGameTime += element.value * 60;
+          newTotalGameTimeSeconds += (+element.value) * 60;
         }
-        else if (element.name === "formTotalGameTimeMinutes") {
-          newTotalGameTime += element.value;
+        else if (element.name === "formTotalGameTimeSeconds") {
+          newTotalGameTimeSeconds += (+element.value);
+        } else if (element.name === "formReserveTimeSeconds") {
+          matchParameters.reserveTimeMs = (+element.value) * 1000;
         } else {
           matchParameters[element.name] = element.value;
         }
       }
     }
-    matchParameters["totalGameTimeSeconds"] = newTotalGameTime;
+    matchParameters["totalGameTimeMs"] = newTotalGameTimeSeconds * 1000;
 
     saveStateToLocalStorage(MATCH_PARAMETERS_KEY, matchParameters);
 
@@ -273,7 +278,23 @@ function onClickDone(isPlayerOne) {
   Array.from(document.getElementsByClassName("roll_action_ui")).forEach(function (it) {
     it.style.display = "none";
   });
+
+  if (isPlayerOne) {
+    clearTimeout(gameState.playerOneTimeoutId);
+    gameState.playerOneTimeoutId = null;
+    gameState.playerOneReserveTimeRemainingMs = matchParameters.reserveTimeMs;
+    document.getElementById("player_one_reserve_time").innerText =
+      formatReserveTime(gameState.playerOneReserveTimeRemainingMs);
+  } else {
+    clearTimeout(gameState.playerTwoTimeoutId);
+    gameState.playerTwoTimeoutId = null;
+    gameState.playerTwoReserveTimeRemainingMs = matchParameters.reserveTimeMs;
+    document.getElementById("player_two_reserve_time").innerText =
+      formatReserveTime(gameState.playerTwoReserveTimeRemainingMs);
+  }
+
   toggleMainUIToShowForPlayer(!isPlayerOne);
+  setupTimerForPlayer(!isPlayerOne);
 }
 
 function onClickDouble(isPlayerOne) {
@@ -320,6 +341,7 @@ function onClickStart(didPlayerOneClick) {
   }
 
   toggleMainUIToShowForPlayer(isPlayerOneFirst);
+  setupTimerForPlayer(isPlayerOneFirst);
 }
 
 function setupMainButtons() {
@@ -363,6 +385,52 @@ function setupMainButtons() {
       it.classList = newClassList.join(" ");
     }
   })
+}
+
+function setupTimerForPlayer(isPlayerOne) {
+  let expected;
+
+  function tick() {
+    if (isPlayerOne) {
+      if (gameState.playerOneReserveTimeRemainingMs > 0) {
+        gameState.playerOneReserveTimeRemainingMs -= ONE_SECOND_IN_MS;
+        document.getElementById("player_one_reserve_time").innerText =
+          formatReserveTime(gameState.playerOneReserveTimeRemainingMs);
+      } else {
+        gameState.playerOneTotalTimeRemainingMs -= ONE_SECOND_IN_MS;
+        document.getElementById("player_one_total_time").innerText =
+          formatTotalTime(gameState.playerOneTotalTimeRemainingMs);
+      }
+    } else {
+      if (gameState.playerTwoReserveTimeRemainingMs > 0) {
+        gameState.playerTwoReserveTimeRemainingMs -= ONE_SECOND_IN_MS;
+        document.getElementById("player_two_reserve_time").innerText =
+          formatReserveTime(gameState.playerTwoReserveTimeRemainingMs);
+      } else {
+        gameState.playerTwoTotalTimeRemainingMs -= ONE_SECOND_IN_MS;
+        document.getElementById("player_two_total_time").innerText =
+          formatTotalTime(gameState.playerTwoTotalTimeRemainingMs);
+      }
+    }
+
+    const now = Date.now();
+    const drift = now - expected;
+    expected += ONE_SECOND_IN_MS;
+    const timeoutId = setTimeout(tick, Math.max(0, ONE_SECOND_IN_MS - drift));
+    if (isPlayerOne) {
+      gameState.playerOneTimeoutId = timeoutId;
+    } else {
+      gameState.playerTwoTimeoutId = timeoutId;
+    }
+  }
+
+  expected = Date.now() + ONE_SECOND_IN_MS;
+  const timeoutId = setTimeout(tick, ONE_SECOND_IN_MS);
+  if (isPlayerOne) {
+    gameState.playerOneTimeoutId = timeoutId;
+  } else {
+    gameState.playerTwoTimeoutId = timeoutId;
+  }
 }
 
 function resetUI() {
