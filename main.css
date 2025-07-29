@@ -235,6 +235,8 @@ body {
 
 .display_rolled_dice {
   display: flex;
+  width: 100%;
+  justify-content: space-evenly;
 }
 
 .done_button {
@@ -286,4 +288,17 @@ body {
 }
 
 .double_drop_button {
+}
+
+.cube {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  border-radius: 10px;
+  border: 1px solid black;
+  aspect-ratio: 1/1;
+  min-width: 20%;
+
+  font-size: 2.5em;
 }

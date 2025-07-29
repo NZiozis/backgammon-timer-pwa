@@ -23,6 +23,7 @@
 - [ ] Double UI
 - [ ] Double drop/take
 - [ ] Something to happen when timer reaches 0
+- [ ] Some sort of undo
 
 ## NOTES
 - The default assumes that the app is being viewed in portrait mode

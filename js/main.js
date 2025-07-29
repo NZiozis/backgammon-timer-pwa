@@ -250,34 +250,19 @@ function setupSettingsDialog() {
   });
 }
 
-function hideAllMainUI() {
-  Array.from(document.getElementsByClassName("main_ui")).forEach(function(it) {
-    it.style.display = "none";
-  });
-}
-
 function toggleMainUIToShowForPlayer(showForPlayerOne) {
-  Array.from(document.getElementsByClassName("main_ui")).forEach(function(it) {
-    const isPlayerOneUI = isPlayerOneUIElement(it);
-
-    if (showForPlayerOne && isPlayerOneUI) {
-      it.style.display = "flex";
-    } else if (showForPlayerOne && !isPlayerOneUI) {
-      it.style.display = "none";
-    } else if (!showForPlayerOne && isPlayerOneUI) {
-      it.style.display = "none";
-    } else if (!showForPlayerOne && !isPlayerOneUI) {
-      it.style.display = "flex";
-    }
-  });
+  document.querySelector("#player_one #main_ui").style.display = showForPlayerOne ?
+    "flex" : "none";
+  document.querySelector("#player_two #main_ui").style.display = showForPlayerOne ?
+    "none" : "flex";
 }
 
 function onClickDone(isPlayerOne) {
-  // NOTE: This hide step could be technically not necessary if we aren't doing rolling.
-  // Revisit if there is a bottleneck
-  Array.from(document.getElementsByClassName("roll_action_ui")).forEach(function (it) {
-    it.style.display = "none";
-  });
+  if (isPlayerOne) {
+    document.querySelector("#player_one #roll_action_ui").style.display = "none";
+  } else {
+    document.querySelector("#player_two #roll_action_ui").style.display = "none";
+  }
 
   if (isPlayerOne) {
     clearTimeout(gameState.playerOneTimeoutId);
@@ -303,21 +288,14 @@ function onClickDouble(isPlayerOne) {
 
 function onClickRoll(isPlayerOne) {
   /** Hide the roll/double, show roll_action_ui **/
-  hideAllMainUI();
+  const playerUI = isPlayerOne ? document.getElementById("player_one") :
+     document.getElementById("player_two");
 
-  Array.from(document.getElementsByClassName("roll_action_ui")).forEach(function (it) {
-    const isPlayerOneUI = isPlayerOneUIElement(it);
+  playerUI.querySelector("#main_ui").style.display = "none";
 
-    if (isPlayerOne && isPlayerOneUI) {
-      it.style.display = "flex";
-    } else if (isPlayerOne && !isPlayerOneUI) {
-      it.style.display = "none";
-    } else if (!isPlayerOne && isPlayerOneUI) {
-      it.style.display = "none";
-    } else if (!isPlayerOne && !isPlayerOneUI) {
-      it.style.display = "flex";
-    }
-  });
+  playerUI.querySelector("#roll_action_ui").style.display = "flex";
+  playerUI.querySelector("#dice_one_span").innerText = Math.floor(Math.random() * 6) + 1;
+  playerUI.querySelector("#dice_two_span").innerText = Math.floor(Math.random() * 6) + 1;
 }
 
 function onClickStart(didPlayerOneClick) {
