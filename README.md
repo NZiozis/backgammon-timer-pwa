@@ -21,13 +21,14 @@
 - [ ] Concede UI
 - [ ] Alert that changing settings mid-game will cause the game to reset
 - [X] Working Timers
-- [ ] Style pass
-- [ ] Work for larger/landscape screens
+- [ ] Double drop/take
+- [ ] BUG: Switch timer to other player when offering double
 - [X] Dice for when rolling is active
 - [X] Double UI
-- [ ] Double drop/take
 - [ ] Something to happen when timer reaches 0
 - [ ] Some sort of undo
+- [ ] Work for larger/landscape screens
+- [ ] Style pass
 
 ## NOTES
 - The default assumes that the app is being viewed in portrait mode

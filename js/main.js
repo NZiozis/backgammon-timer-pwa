@@ -150,6 +150,7 @@ function updateDoublingCube() {
       midline.style.justifyContent = "start";
       break;
     case CubeOwnership.PLAYER_TWO:
+      doublingCube.style.transform = "rotate(0deg)";
       midline.style.justifyContent = "end";
       break;
   }
@@ -286,26 +287,42 @@ function onClickDone(isPlayerOne) {
     document.querySelector("#player_two #roll_action_ui").style.display = "none";
   }
 
-  if (isPlayerOne) {
-    clearTimeout(gameState.playerOneTimeoutId);
-    gameState.playerOneTimeoutId = null;
-    gameState.playerOneReserveTimeRemainingMs = matchParameters.reserveTimeMs;
-    document.getElementById("player_one_reserve_time").innerText =
-      formatReserveTime(gameState.playerOneReserveTimeRemainingMs);
-  } else {
-    clearTimeout(gameState.playerTwoTimeoutId);
-    gameState.playerTwoTimeoutId = null;
-    gameState.playerTwoReserveTimeRemainingMs = matchParameters.reserveTimeMs;
-    document.getElementById("player_two_reserve_time").innerText =
-      formatReserveTime(gameState.playerTwoReserveTimeRemainingMs);
-  }
-
-  toggleMainUIToShowForPlayer(!isPlayerOne);
   setupTimerForPlayer(!isPlayerOne);
+  toggleMainUIToShowForPlayer(!isPlayerOne);
 }
 
 function onClickDouble(isPlayerOne) {
-  // TODO Implement
+  const offeringPlayerUI = isPlayerOne ? document.getElementById("player_one") :
+      document.getElementById("player_two");
+  const decidingPlayerUI = isPlayerOne ? document.getElementById("player_two") :
+      document.getElementById("player_one")
+
+  offeringPlayerUI.querySelector("#main_ui").style.display = "none";
+
+  decidingPlayerUI.querySelector("#double_action_ui").style.display = "flex";
+  decidingPlayerUI.querySelector("#offered_cube").innerText = gameState.currentGameValue * 2;
+
+  document.getElementById("doubling_cube").style.display = "none";
+  setupTimerForPlayer(!isPlayerOne);
+}
+
+function onClickDoubleTake(isPlayerOne) {
+  gameState.currentGameValue = gameState.currentGameValue * 2;
+  gameState.cubeOwnership = isPlayerOne ? CubeOwnership.PLAYER_ONE : CubeOwnership.PLAYER_TWO;
+
+  const playerTaking = isPlayerOne ? document.getElementById("player_one") :
+      document.getElementById("player_two");
+  const playerOnTurn = isPlayerOne ? document.getElementById("player_two") :
+      document.getElementById("player_one")
+
+  playerTaking.querySelector("#double_action_ui").style.display = "none";
+
+  playerOnTurn.querySelector("#main_ui").style.display = "flex";
+  playerOnTurn.querySelector("#main_ui .double_button").style.display = "none";
+
+  document.getElementById("doubling_cube").style.display = "flex";
+  updateDoublingCube();
+  setupTimerForPlayer(!isPlayerOne);
 }
 
 function onClickRoll(isPlayerOne) {
@@ -354,6 +371,13 @@ function setupMainButtons() {
     */
   Array.from(document.getElementsByClassName("start_button")).forEach(function(it) {
     it.onclick = () => onClickStart(isPlayerOneUIElement(it));
+  })
+
+  Array.from(document.getElementsByClassName("double_drop_button")).forEach(function(it) {
+  })
+
+  Array.from(document.getElementsByClassName("double_take_button")).forEach(function(it) {
+    it.onclick = () => onClickDoubleTake(isPlayerOneUIElement(it));
   })
 
   Array.from(document.getElementsByClassName("double_button")).forEach(function(it) {
@@ -428,8 +452,18 @@ function setupTimerForPlayer(isPlayerOne) {
   const timeoutId = setTimeout(tick, ONE_SECOND_IN_MS);
   if (isPlayerOne) {
     gameState.playerOneTimeoutId = timeoutId;
+    clearTimeout(gameState.playerTwoTimeoutId);
+    gameState.playerTwoTimeoutId = null;
+    gameState.playerTwoReserveTimeRemainingMs = matchParameters.reserveTimeMs;
+    document.getElementById("player_two_reserve_time").innerText =
+      formatReserveTime(gameState.playerTwoReserveTimeRemainingMs);
   } else {
     gameState.playerTwoTimeoutId = timeoutId;
+    clearTimeout(gameState.playerOneTimeoutId);
+    gameState.playerOneTimeoutId = null;
+    gameState.playerOneReserveTimeRemainingMs = matchParameters.reserveTimeMs;
+    document.getElementById("player_one_reserve_time").innerText =
+      formatReserveTime(gameState.playerOneReserveTimeRemainingMs);
   }
 }
 
