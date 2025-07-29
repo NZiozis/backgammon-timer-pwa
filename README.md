@@ -1,5 +1,9 @@
 # backgammon-timer-pwa
 
+- NOTE: Remeber to check gameState for all the fields you put there. You should actually
+  use them to update and keep track of what UI should be showning like you did for the
+  doubling cube
+
 ## Run for local development
 ~bash
   python3 -m http.server 8000
