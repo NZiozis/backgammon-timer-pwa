@@ -137,6 +137,26 @@ function isPlayerOneUIElement(element) {
   return currentElement.dataset["playerId"] === "1";
 }
 
+function updateDoublingCube() {
+  const midline = document.getElementById("midline");
+  const doublingCube = document.getElementById("doubling_cube");
+  switch (gameState.cubeOwnership) {
+    case CubeOwnership.NEUTRAL:
+      doublingCube.style.transform = "rotate(90deg)";
+      midline.style.justifyContent = "center";
+      break;
+    case CubeOwnership.PLAYER_ONE:
+      doublingCube.style.transform = "rotate(180deg)";
+      midline.style.justifyContent = "start";
+      break;
+    case CubeOwnership.PLAYER_TWO:
+      midline.style.justifyContent = "end";
+      break;
+  }
+  doublingCube.innerText = gameState.currentGameValue === 1 ? "64"
+    : gameState.currentGameValue;
+}
+
 function setupUIBasedOnGameState() {
   /**
     * Takes the information present in appState (a globally defined variable) and
@@ -160,23 +180,7 @@ function setupUIBasedOnGameState() {
   document.getElementById("player_two_reserve_time").innerText =
     formatReserveTime(gameState.playerTwoReserveTimeRemainingMs);
 
-  const midline = document.getElementById("midline");
-  const doublingCube = document.getElementById("doubling_cube");
-  switch (gameState.cubeOwnership) {
-    case CubeOwnership.NEUTRAL:
-      doublingCube.style.transform = "rotate(90deg)";
-      midline.style.justifyContent = "center";
-      break;
-    case CubeOwnership.PLAYER_ONE:
-      doublingCube.style.transform = "rotate(180deg)";
-      midline.style.justifyContent = "start";
-      break;
-    case CubeOwnership.PLAYER_TWO:
-      midline.style.justifyContent = "end";
-      break;
-  }
-  doublingCube.innerText = gameState.currentGameValue === 1 ? "64"
-    : gameState.currentGameValue;
+  updateDoublingCube();
 }
 
 function setupUIBasedOnMatchParameters() {

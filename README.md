@@ -19,8 +19,8 @@
 - [X] Working Timers
 - [ ] Style pass
 - [ ] Work for larger/landscape screens
-- [ ] Dice for when rolling is active
-- [ ] Double UI
+- [X] Dice for when rolling is active
+- [X] Double UI
 - [ ] Double drop/take
 - [ ] Something to happen when timer reaches 0
 - [ ] Some sort of undo
