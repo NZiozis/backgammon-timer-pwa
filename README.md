@@ -21,10 +21,11 @@
 - [ ] Concede UI
 - [ ] Alert that changing settings mid-game will cause the game to reset
 - [X] Working Timers
-- [ ] Double drop/take
-- [ ] BUG: Switch timer to other player when offering double
+- [X] Double take
+- [ ] Double drop
 - [X] Dice for when rolling is active
 - [X] Double UI
+- [ ] When resetting for new game, make sure to un-hide buttons like double_button
 - [ ] Something to happen when timer reaches 0
 - [ ] Some sort of undo
 - [ ] Work for larger/landscape screens
