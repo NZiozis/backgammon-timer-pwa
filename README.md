@@ -25,8 +25,11 @@
 - [X] Double UI
 - [X] When resetting for new game, make sure to un-hide buttons like double_button
 - [ ] Concede UI
-- [ ] Pausing functionality
 - [ ] Something to happen when timer reaches 0
+- [ ] Something for when score cap is reached
+- [ ] UI to show the score cap while playing
+- [ ] Update icon for settings button
+- [ ] Pausing functionality
 - [ ] Some sort of undo
 - [ ] Alert that changing settings mid-game will cause the game to reset
 - [ ] Work for larger/landscape screens
