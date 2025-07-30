@@ -18,16 +18,17 @@
 ## TODO
 - [X] Customize names for players
 - [X] Consider if the player that doubles should have default_hidden or style=none applied to the button
-- [ ] Concede UI
-- [ ] Alert that changing settings mid-game will cause the game to reset
 - [X] Working Timers
 - [X] Double take
-- [ ] Double drop
+- [X] Double drop
 - [X] Dice for when rolling is active
 - [X] Double UI
-- [ ] When resetting for new game, make sure to un-hide buttons like double_button
+- [X] When resetting for new game, make sure to un-hide buttons like double_button
+- [ ] Concede UI
+- [ ] Pausing functionality
 - [ ] Something to happen when timer reaches 0
 - [ ] Some sort of undo
+- [ ] Alert that changing settings mid-game will cause the game to reset
 - [ ] Work for larger/landscape screens
 - [ ] Style pass
 

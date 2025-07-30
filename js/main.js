@@ -163,7 +163,7 @@ function setupUIBasedOnGameState() {
     * Takes the information present in appState (a globally defined variable) and
     * uses that to update the UI. This is typically only done on page load
     */
-  document.getElementById("player_one_score").innerText = gameState.playerOneGames;
+  document.getElementById("player_one_score").innerText = gameState.playerOneScore;
   document.getElementById("player_one_games").innerText =
     formatGamesValue(gameState.playerOneGames);
   document.getElementById("player_one_total_time").innerText =
@@ -173,7 +173,7 @@ function setupUIBasedOnGameState() {
 
 
   document.getElementById("player_two_score").innerText =
-    gameState.playerTwoGames;
+    gameState.playerTwoScore;
   document.getElementById("player_two_games").innerText =
     formatGamesValue(gameState.playerTwoGames);
   document.getElementById("player_two_total_time").innerText =
@@ -325,6 +325,10 @@ function onClickDoubleTake(isPlayerOne) {
   setupTimerForPlayer(!isPlayerOne);
 }
 
+function onClickDoubleDrop(isPlayerOne) {
+  handlePlayerWin(!isPlayerOne);
+}
+
 function onClickRoll(isPlayerOne) {
   /** Hide the roll/double, show roll_action_ui **/
   const playerUI = isPlayerOne ? document.getElementById("player_one") :
@@ -374,6 +378,7 @@ function setupMainButtons() {
   })
 
   Array.from(document.getElementsByClassName("double_drop_button")).forEach(function(it) {
+    it.onclick = () => onClickDoubleDrop(isPlayerOneUIElement(it));
   })
 
   Array.from(document.getElementsByClassName("double_take_button")).forEach(function(it) {
@@ -412,9 +417,13 @@ function setupMainButtons() {
 }
 
 function setupTimerForPlayer(isPlayerOne) {
+  /** Starts the timer for the specified player
+    *
+    */
   let expected;
 
   function tick() {
+    // TODO Some sort of logic for when clock hits zero
     if (isPlayerOne) {
       if (gameState.playerOneReserveTimeRemainingMs > 0) {
         gameState.playerOneReserveTimeRemainingMs -= ONE_SECOND_IN_MS;
@@ -465,6 +474,57 @@ function setupTimerForPlayer(isPlayerOne) {
     document.getElementById("player_one_reserve_time").innerText =
       formatReserveTime(gameState.playerOneReserveTimeRemainingMs);
   }
+}
+
+function handlePlayerWin(didPlayerOneWin, multiplier=1) {
+  /** Updates the state for a player win and resets the UI for a new game
+    *
+    * @multiplier  If the player wins a gammon or backgammon, this modifies
+    *              the gameState.currentGameValue when updating the player score
+    */
+
+  const score = gameState.currentGameValue * multiplier
+
+  if (didPlayerOneWin) {
+    gameState.playerOneGames += 1;
+    gameState.playerOneScore += score;
+  } else {
+    gameState.playerTwoGames += 1;
+    gameState.playerTwoScore += score;
+  }
+  gameState.currentGameValue = 1;
+  gameState.cubeOwnership = CubeOwnership.NEUTRAL;
+  gameState.currentPlayerTurn = CubeOwnership.NEUTRAL;
+
+  document.getElementById("doubling_cube").style.display = "flex";
+  updateDoublingCube();
+
+  clearTimeout(gameState.playerTwoTimeoutId);
+  gameState.playerTwoTimeoutId = null;
+  clearTimeout(gameState.playerOneTimeoutId);
+  gameState.playerOneTimeoutId = null;
+
+  setupUIBasedOnGameState();
+  document.getElementById("player_two_reserve_time").innerText =
+    formatReserveTime(matchParameters.reserveTimeMs);
+  document.getElementById("player_one_reserve_time").innerText =
+    formatReserveTime(matchParameters.reserveTimeMs);
+
+  Array.from(document.getElementsByClassName("main_ui")).forEach(function(it) {
+    it.style.display = "none";
+
+    // NOTE: This resets the UI if doubling action was taken the last game
+    it.querySelector(".double_button").style.display = "block";
+  });
+  Array.from(document.getElementsByClassName("roll_action_ui")).forEach(function(it) {
+    it.style.display = "none";
+  });
+  Array.from(document.getElementsByClassName("double_action_ui")).forEach(function(it) {
+    it.style.display = "none";
+  });
+  Array.from(document.getElementsByClassName("start_ui")).forEach(function(it) {
+    it.style.display = "flex";
+  });
 }
 
 function resetUI() {
