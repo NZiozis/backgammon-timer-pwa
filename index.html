@@ -110,9 +110,12 @@
     <div class="main_container">
       <div id="sidebar" class="sidebar">
         <!-- This includes the settings buttons, score UI, and timers -->
-        <div id="player_one_settings">
-          <button id="player_one_settings_button" class="settings_button">
-            <img src="icons/settings_dots.svg" alt="Player two setings" />
+        <div id="player_one_sidebar_buttons" class="sidebar_buttons">
+          <button class="sidebar_button concede_button">
+            <img src="icons/concede.svg" alt="Player one concede" />
+          </button>
+          <button class="sidebar_button settings_button">
+            <img src="icons/settings.svg" alt="Player one setings" />
           </button>
         </div>
         <div id="player_one_sidebar">
@@ -124,12 +127,17 @@
             </div>
           </div>
         </div>
-        <div class="sidebar_score">
-          <span id="player_one_score">0</span>
-          <span id="player_one_games">(0)</span>
-          <span>.</span>
-          <span id="player_two_score">0</span>
-          <span id="player_two_games">(0)</span>
+        <div class="sidebar_middle">
+          <div id="sidebar_game_info" class="sidebar_game_info">
+            E
+          </div>
+          <div class="sidebar_score">
+            <span id="player_one_score">0</span>
+            <span id="player_one_games">(0)</span>
+            <span>.</span>
+            <span id="player_two_score">0</span>
+            <span id="player_two_games">(0)</span>
+          </div>
         </div>
         <div id="player_two_sidebar">
           <div class="player_sidebar">
@@ -140,9 +148,12 @@
             </div>
           </div>
         </div>
-        <div id="player_two_settings">
-          <button class="settings_button">
-            <img src="icons/settings_dots.svg" alt="Player two setings" />
+        <div id="player_two_sidebar_buttons" class="sidebar_buttons">
+          <button class="sidebar_button concede_button">
+            <img src="icons/concede.svg" alt="Player two concede" />
+          </button>
+          <button class="sidebar_button settings_button">
+            <img src="icons/settings.svg" alt="Player two setings" />
           </button>
         </div>
       </div>

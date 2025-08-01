@@ -132,6 +132,15 @@ body {
   }
 }
 
+.sidebar_middle {
+  display: flex;
+  flex-direction: row-reverse;
+  align-items: center;
+}
+.sidebar_game_info {
+  font-size: 0.8em;
+  writing-mode: vertical-lr;
+}
 .sidebar_score {
   display: inline-flex;
   flex-direction: column;
@@ -190,17 +199,34 @@ body {
   /***/
 }
 
-.settings_button {
-	border-radius: 100px;
+.sidebar_buttons {
+  display: flex;
+  gap: 5px;
+  flex-direction: column;
+}
+
+#player_one_sidebar_buttons {
+  transform: rotate(180deg);
+}
+.sidebar_button {
+  border-radius: 100px;
 	background-color: transparent;
 	border: 0;
-	padding: 20px;
+	padding: 5px;
 	display: flex;
-	align-items: center;
+	justify-content: center;
+
+  img {
+    aspect-ratio: 1/1;
+    max-width: 50px;
+    width: 65%;
+  }
 
   &:active {
     background-color: #00000022;
   }
+}
+.settings_button {
 }
 
 /* Of main_ui and double_action_ui, only one should be present at the same time */

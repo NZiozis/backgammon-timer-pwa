@@ -198,6 +198,8 @@ function setupUIBasedOnMatchParameters() {
     formatTotalTime(matchParameters.totalGameTimeMs);
   document.getElementById("player_two_reserve_time").innerText =
     formatReserveTime(matchParameters.reserveTimeMs);
+
+  document.getElementById("sidebar_game_info").innerText = `Game to ${matchParameters.scoreLimit}`;
 }
 
 function onClickSettings() {
