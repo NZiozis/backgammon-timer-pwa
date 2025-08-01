@@ -9,12 +9,6 @@
   python3 -m http.server 8000
 ~
 
-## For next time
-- Use `setInterval()` to update the timer and the UI related to it.
-  - Update the UI in the callback given to the setInterval.
-  - The return value of the timer is used to cancel the update later on.
-    - EX when the player turn switches
-
 ## TODO
 - [X] Customize names for players
 - [X] Consider if the player that doubles should have default_hidden or style=none applied to the button
@@ -24,16 +18,20 @@
 - [X] Dice for when rolling is active
 - [X] Double UI
 - [X] When resetting for new game, make sure to un-hide buttons like double_button
+- [X] Update icon for settings button
 - [ ] Concede UI
+- [ ] Concded functionality
 - [ ] Something to happen when timer reaches 0
 - [ ] Something for when score cap is reached
 - [ ] UI to show the score cap while playing
-- [ ] Update icon for settings button
-- [ ] Pausing functionality
-- [ ] Some sort of undo
 - [ ] Alert that changing settings mid-game will cause the game to reset
-- [ ] Work for larger/landscape screens
+- [ ] Pausing functionality
 - [ ] Style pass
+- [ ] Hosted online and downloadable
+
+## TODO Later
+- [ ] Some sort of undo
+- [ ] Work for larger/landscape screens
 
 ## NOTES
 - The default assumes that the app is being viewed in portrait mode
