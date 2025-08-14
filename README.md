@@ -24,8 +24,9 @@
 - [X] Something to happen when timer reaches 0
 - [X] Something for when score cap is reached
 - [X] UI to show the score cap while playing
-- [ ] Alert that changing settings mid-game will cause the game to reset
 - [ ] Pausing functionality
+- [ ] "Do you accept" logic for the player being offered the game on concede
+- [ ] Alert that changing settings mid-game will cause the game to reset
 - [ ] Hosted online and downloadable
 - [ ] Style pass
 - [ ] Better win UI
