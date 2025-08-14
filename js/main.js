@@ -63,9 +63,17 @@ const gameState = {
   playerTwoTotalTimeRemainingMs: TEN_MINUTES_IN_MS,
   playerTwoReserveTimeRemainingMs: TEN_SECONDS_IN_MS,
   playerTwoTimeoutId: null,
+
+  forceRestartInEffect: true, // This makes sure that tick fully stops on a reset. Since the tick is handled by setTimeout, there is a chance that it will run over and ignore a gameState reset if this isn't set. This is toggled to false on game start and is set to true when a function like resetGameState is called
 }
 
 function resetGameState() {
+  gameState.forceRestartInEffect = true;
+  clearTimeout(gameState.playerTwoTimeoutId);
+  gameState.playerTwoTimeoutId = null;
+  clearTimeout(gameState.playerOneTimeoutId);
+  gameState.playerOneTimeoutId = null;
+
   gameState.currentPlayerTurn = PlayerTurn.NEUTRAL;
   gameState.currentGameValue = 1;
   gameState.cubeOwnership = CubeOwnership.NEUTRAL;
@@ -131,7 +139,7 @@ function isPlayerOneUIElement(element) {
   while (!currentElement.dataset.hasOwnProperty("playerId")) {
     currentElement = currentElement.parentElement;
     if (currentElement === null) {
-      // TODO throw an error
+      console.error("Unable to find which player clicked");
     }
   }
   return currentElement.dataset["playerId"] === "1";
@@ -202,7 +210,9 @@ function setupUIBasedOnMatchParameters() {
   document.getElementById("sidebar_game_info").innerText = `Game to ${matchParameters.scoreLimit}`;
 }
 
-function onClickConcede() {
+function onClickConcede(isPlayerOne) {
+  setupConcedeDialog(isPlayerOne);
+
   document.getElementById("concede_dialog").showModal();
 }
 
@@ -214,11 +224,58 @@ function onClickSettings() {
 
 function setupSidebar() {
   Array.from(document.getElementsByClassName("concede_button")).forEach(function(it) {
-    it.onclick = onClickConcede;
+    it.onclick = () => onClickConcede(isPlayerOneUIElement(it));
   })
+
   Array.from(document.getElementsByClassName("settings_button")).forEach(function(it) {
     it.onclick = onClickSettings;
   })
+}
+
+function setupConcedeDialog(isPlayerOneConceding) {
+  const dialog = document.getElementById("concede_dialog");
+
+  if (isPlayerOneConceding) {
+    dialog.style.transform = "rotate(180deg)";
+  }
+
+  const abortController = new AbortController();
+  const signal = abortController.signal;
+
+  const concedeOneMatchButton = document.getElementById("concede_one_match");
+  concedeOneMatchButton.innerText = `Concede ${gameState.currentGameValue}`;
+  concedeOneMatchButton.addEventListener("click", (event) => {
+    handlePlayerWin(!isPlayerOneConceding);
+    dialog.close();
+  }, {signal});
+  const concedeTwoMatchButton = document.getElementById("concede_two_match");
+  concedeTwoMatchButton.innerText = `Concede ${gameState.currentGameValue * 2}`;
+  concedeTwoMatchButton.addEventListener("click", (event) => {
+    handlePlayerWin(!isPlayerOneConceding, 2);
+    dialog.close();
+  }, {signal});
+  const concedeThreeMatchButton = document.getElementById("concede_three_match");
+  concedeThreeMatchButton.innerText = `Concede ${gameState.currentGameValue * 3}`;
+  concedeThreeMatchButton.addEventListener("click", (event) => {
+    handlePlayerWin(!isPlayerOneConceding, 3);
+    dialog.close();
+  }, {signal});
+
+  const concedeGameButton = document.getElementById("concede_game");
+  concedeGameButton.addEventListener("click", (event) => {
+    handlePlayerWin(!isPlayerOneConceding, 1, true);
+    dialog.close();
+  }, {signal});
+
+
+  document.getElementById("close_concede").addEventListener("click", (event) => {
+    dialog.close();
+  }, {signal});
+
+  dialog.addEventListener("close", () => {
+    dialog.style.transform = "rotate(0deg)";
+    abortController.abort();
+  }, { once: true } );
 }
 
 function setupSettingsDialog() {
@@ -275,8 +332,7 @@ function setupSettingsDialog() {
 
     saveStateToLocalStorage(MATCH_PARAMETERS_KEY, matchParameters);
 
-    resetGameState();
-    resetUI();
+    fullReset();
 
     dialog.close();
   });
@@ -355,6 +411,8 @@ function onClickStart(didPlayerOneClick) {
     * If startType, then it's a coin flip to start
     * Otherwise, the player that clicked the button does first
     **/
+  gameState.forceRestartInEffect = false;
+
   Array.from(document.getElementsByClassName("start_ui")).forEach(function(it) {
     it.style.display = "none";
   });
@@ -432,7 +490,9 @@ function setupTimerForPlayer(isPlayerOne) {
   let expected;
 
   function tick() {
-    // TODO Some sort of logic for when clock hits zero
+    if (gameState.forceRestartInEffect) {
+      return;
+    }
     if (isPlayerOne) {
       if (gameState.playerOneReserveTimeRemainingMs > 0) {
         gameState.playerOneReserveTimeRemainingMs -= ONE_SECOND_IN_MS;
@@ -442,6 +502,9 @@ function setupTimerForPlayer(isPlayerOne) {
         gameState.playerOneTotalTimeRemainingMs -= ONE_SECOND_IN_MS;
         document.getElementById("player_one_total_time").innerText =
           formatTotalTime(gameState.playerOneTotalTimeRemainingMs);
+        if (gameState.playerOneTotalTimeRemainingMs <= 0) {
+          handlePlayerWin(false /* didPlayerOneWin */, 1, true);
+        }
       }
     } else {
       if (gameState.playerTwoReserveTimeRemainingMs > 0) {
@@ -452,6 +515,9 @@ function setupTimerForPlayer(isPlayerOne) {
         gameState.playerTwoTotalTimeRemainingMs -= ONE_SECOND_IN_MS;
         document.getElementById("player_two_total_time").innerText =
           formatTotalTime(gameState.playerTwoTotalTimeRemainingMs);
+        if (gameState.playerTwoTotalTimeRemainingMs <= 0) {
+          handlePlayerWin(true /* didPlayerOneWin */, 1, true);
+        }
       }
     }
 
@@ -485,7 +551,7 @@ function setupTimerForPlayer(isPlayerOne) {
   }
 }
 
-function handlePlayerWin(didPlayerOneWin, multiplier=1) {
+function handlePlayerWin(didPlayerOneWin, multiplier=1, forceGameWin=false) {
   /** Updates the state for a player win and resets the UI for a new game
     *
     * @multiplier  If the player wins a gammon or backgammon, this modifies
@@ -497,10 +563,23 @@ function handlePlayerWin(didPlayerOneWin, multiplier=1) {
   if (didPlayerOneWin) {
     gameState.playerOneGames += 1;
     gameState.playerOneScore += score;
+    if (forceGameWin || gameState.playerOneScore >= matchParameters.scoreLimit) {
+      fullReset();
+      alert(`${matchParameters.playerOneName} wins`);
+
+      return;
+    }
   } else {
     gameState.playerTwoGames += 1;
     gameState.playerTwoScore += score;
+    if (forceGameWin || gameState.playerTwoScore >= matchParameters.scoreLimit) {
+      fullReset();
+      alert(`${matchParameters.playerTwoName} wins`);
+
+      return;
+    }
   }
+
   gameState.currentGameValue = 1;
   gameState.cubeOwnership = CubeOwnership.NEUTRAL;
   gameState.currentPlayerTurn = CubeOwnership.NEUTRAL;
@@ -534,6 +613,11 @@ function handlePlayerWin(didPlayerOneWin, multiplier=1) {
   Array.from(document.getElementsByClassName("start_ui")).forEach(function(it) {
     it.style.display = "flex";
   });
+}
+
+function fullReset() {
+  resetGameState();
+  resetUI();
 }
 
 function resetUI() {

@@ -19,15 +19,17 @@
 - [X] Double UI
 - [X] When resetting for new game, make sure to un-hide buttons like double_button
 - [X] Update icon for settings button
-- [ ] Concede UI
-- [ ] Concede functionality
-- [ ] Something to happen when timer reaches 0
-- [ ] Something for when score cap is reached
-- [ ] UI to show the score cap while playing
+- [X] Concede UI
+- [X] Concede functionality
+- [X] Something to happen when timer reaches 0
+- [X] Something for when score cap is reached
+- [X] UI to show the score cap while playing
 - [ ] Alert that changing settings mid-game will cause the game to reset
 - [ ] Pausing functionality
-- [ ] Style pass
 - [ ] Hosted online and downloadable
+- [ ] Style pass
+- [ ] Better win UI
+  - right now I just use a system alert
 
 ## TODO Later
 - [ ] Some sort of undo

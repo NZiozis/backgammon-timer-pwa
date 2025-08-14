@@ -47,10 +47,16 @@
     <dialog id="concede_dialog" class="dialog">
       <div class="container">
         <div class="title">
+          <span>Concede</span>
         </div>
         <div class="content">
+          <button id="concede_one_match" type="button">X</button>
+          <button id="concede_two_match" type="button">X</button>
+          <button id="concede_three_match" type="button">X</button>
+          <button id="concede_game" type="button">Forfeit Game</button>
         </div>
         <div class="buttons_row">
+          <button id="close_concede" type="button">Close</button>
         </div>
       </div>
     </dialog>
@@ -123,7 +129,7 @@
     <div class="main_container">
       <div id="sidebar" class="sidebar">
         <!-- This includes the settings buttons, score UI, and timers -->
-        <div id="player_one_sidebar_buttons" class="sidebar_buttons">
+        <div id="player_one_sidebar_buttons" class="sidebar_buttons" data-player-id="1">
           <button class="sidebar_button concede_button">
             <img src="icons/concede.svg" alt="Player one concede" />
           </button>
@@ -161,7 +167,7 @@
             </div>
           </div>
         </div>
-        <div id="player_two_sidebar_buttons" class="sidebar_buttons">
+        <div id="player_two_sidebar_buttons" class="sidebar_buttons" data-player-id="2">
           <button class="sidebar_button concede_button">
             <img src="icons/concede.svg" alt="Player two concede" />
           </button>
