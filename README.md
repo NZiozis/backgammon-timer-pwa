@@ -20,7 +20,7 @@
 - [X] When resetting for new game, make sure to un-hide buttons like double_button
 - [X] Update icon for settings button
 - [ ] Concede UI
-- [ ] Concded functionality
+- [ ] Concede functionality
 - [ ] Something to happen when timer reaches 0
 - [ ] Something for when score cap is reached
 - [ ] UI to show the score cap while playing

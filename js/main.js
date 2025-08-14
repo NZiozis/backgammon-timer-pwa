@@ -202,6 +202,10 @@ function setupUIBasedOnMatchParameters() {
   document.getElementById("sidebar_game_info").innerText = `Game to ${matchParameters.scoreLimit}`;
 }
 
+function onClickConcede() {
+  document.getElementById("concede_dialog").showModal();
+}
+
 function onClickSettings() {
   setupSettingsDialog();
 
@@ -209,6 +213,9 @@ function onClickSettings() {
 }
 
 function setupSidebar() {
+  Array.from(document.getElementsByClassName("concede_button")).forEach(function(it) {
+    it.onclick = onClickConcede;
+  })
   Array.from(document.getElementsByClassName("settings_button")).forEach(function(it) {
     it.onclick = onClickSettings;
   })

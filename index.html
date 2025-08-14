@@ -44,10 +44,23 @@
     </template>
   </head>
   <body>
-    <dialog id="settings_dialog">
-      <div class="settings_container">
-        <form id="settings_form">
-          <div class="settings_content">
+    <dialog id="concede_dialog" class="dialog">
+      <div class="container">
+        <div class="title">
+        </div>
+        <div class="content">
+        </div>
+        <div class="buttons_row">
+        </div>
+      </div>
+    </dialog>
+    <dialog id="settings_dialog" class="dialog">
+      <div class="container">
+        <div class="title">
+          <span>Settings</span>
+        </div>
+        <div class="content">
+          <form id="settings_form">
             <div>
               <label for="playerOneName">Player One:</label>
               <input type="text" name="playerOneName" id="playerOneName"/>
@@ -71,6 +84,7 @@
                 <option id="FIRST_GAME_RANDOM" value="FIRST_GAME_RANDOM">First game random</option>
                 <option id="PLAYER_THAT_CLICKS" value="PLAYER_THAT_CLICKS">Player that clicks</option>
               </select>
+            </div>
             <div>
               <label for="scoreLimit">Score Limit:</label>
               <input type="number" name="scoreLimit" min="0" id="scoreLimit" />
@@ -84,13 +98,12 @@
               <label for"formReserveTimeSeconds">Reserve Time:</label>
               <input type="number" name="formReserveTimeSeconds" min="0" id="formReserveTimeSeconds"/>
             </div>
-          </div>
-          <div class="settings_buttons_row">
-            <button id="close_settings" type="button">Close</button>
-            <button id="save_settings" type="submit">Save</button>
-          </div>
-        </form>
-      </div>
+          </form>
+        </div>
+        <div class="buttons_row">
+          <button id="close_settings" type="button">Close</button>
+          <button id="save_settings" type="submit">Save</button>
+        </div>
     </dialog>
     <div class="install_banner_visibility">
       <div class="install_banner_container">
