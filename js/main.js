@@ -64,37 +64,83 @@ const gameState = {
   playerTwoReserveTimeRemainingMs: TEN_SECONDS_IN_MS,
   playerTwoTimeoutId: null,
 
-  forceRestartInEffect: true, // This makes sure that tick fully stops on a reset. Since the tick is handled by setTimeout, there is a chance that it will run over and ignore a gameState reset if this isn't set. This is toggled to false on game start and is set to true when a function like resetGameState is called
+  forceStopTimer: true, // This makes sure that tick fully stops on a reset. Since the tick is handled by setTimeout, there is a chance that it will run over and ignore a gameState reset if this isn't set. This is toggled to false on game start and is set to true when a function like resetGameState is called
+}
+const handleGameStateChange = {
+  set(target, property, value) {
+    if (property === "forceStopTimer" && value === true) {
+      clearTimeout(target.playerTwoTimeoutId);
+      target.playerTwoTimeoutId = null;
+      clearTimeout(target.playerOneTimeoutId);
+      target.playerOneTimeoutId = null;
+    } else if (property === "currentPlayerTurn") {
+      const playerOneMainUI = document.querySelector("#player_one #main_ui");
+      const playerTwoMainUI = document.querySelector("#player_two #main_ui");
+
+      const previousWasNeutral = gameState.currentPlayerTurn === PlayerTurn.NEUTRAL;
+
+      if (value === PlayerTurn.PLAYER_ONE) {
+        playerOneMainUI.style.display = "flex";
+        playerTwoMainUI.style.display = "none";
+        if (!previousWasNeutral) {
+          document.querySelector("#player_two #roll_action_ui").style.display = "none";
+        }
+      } else if (value === PlayerTurn.PLAYER_TWO) {
+        playerOneMainUI.style.display = "none";
+        playerTwoMainUI.style.display = "flex";
+
+        if (!previousWasNeutral) {
+          document.querySelector("#player_one #roll_action_ui").style.display = "none";
+        }
+      }
+    } else if (property === "cubeOwnership") {
+      const midline = document.getElementById("midline");
+      const doublingCube = document.getElementById("doubling_cube");
+      switch (value) {
+        case CubeOwnership.NEUTRAL:
+          doublingCube.style.transform = "rotate(90deg)";
+          midline.style.justifyContent = "center";
+          break;
+        case CubeOwnership.PLAYER_ONE:
+          doublingCube.style.transform = "rotate(180deg)";
+          midline.style.justifyContent = "start";
+          break;
+        case CubeOwnership.PLAYER_TWO:
+          doublingCube.style.transform = "rotate(0deg)";
+          midline.style.justifyContent = "end";
+          break;
+      }
+      doublingCube.innerText = gameState.currentGameValue === 1 ? "64"
+        : gameState.currentGameValue;
+    }
+
+
+    return Reflect.set(target, property, value);
+  }
 }
 
+const observedGameState = new Proxy(gameState, handleGameStateChange)
+
 function resetGameState() {
-  gameState.forceRestartInEffect = true;
-  clearTimeout(gameState.playerTwoTimeoutId);
-  gameState.playerTwoTimeoutId = null;
-  clearTimeout(gameState.playerOneTimeoutId);
-  gameState.playerOneTimeoutId = null;
+  observedGameState.forceStopTimer = true;
 
-  gameState.currentPlayerTurn = PlayerTurn.NEUTRAL;
-  gameState.currentGameValue = 1;
-  gameState.cubeOwnership = CubeOwnership.NEUTRAL;
+  observedGameState.currentPlayerTurn = PlayerTurn.NEUTRAL;
+  observedGameState.currentGameValue = 1;
+  observedGameState.cubeOwnership = CubeOwnership.NEUTRAL;
 
-  gameState.playerOneGames = 0;
-  gameState.playerOneScore = 0;
-  gameState.playerOneTotalTimeRemainingMs = matchParameters.totalGameTimeMs;
-  gameState.playerOneReserveTimeRemainingMs = matchParameters.reserveTimeMs;
+  observedGameState.playerOneGames = 0;
+  observedGameState.playerOneScore = 0;
+  observedGameState.playerOneTotalTimeRemainingMs = matchParameters.totalGameTimeMs;
+  observedGameState.playerOneReserveTimeRemainingMs = matchParameters.reserveTimeMs;
 
-  gameState.playerTwoGames = 0;
-  gameState.playerTwoScore = 0;
-  gameState.playerTwoTotalTimeRemainingMs = matchParameters.totalGameTimeMs;
-  gameState.playerTwoReserveTimeRemainingMs = matchParameters.reserveTimeMs;
+  observedGameState.playerTwoGames = 0;
+  observedGameState.playerTwoScore = 0;
+  observedGameState.playerTwoTotalTimeRemainingMs = matchParameters.totalGameTimeMs;
+  observedGameState.playerTwoReserveTimeRemainingMs = matchParameters.reserveTimeMs;
 }
 
 function pauseGame() {
-  gameState.forceRestartInEffect = true;
-  clearTimeout(gameState.playerTwoTimeoutId);
-  gameState.playerTwoTimeoutId = null;
-  clearTimeout(gameState.playerOneTimeoutId);
-  gameState.playerOneTimeoutId = null;
+  observedGameState.forceStopTimer = true;
 
   Array.from(document.getElementsByClassName("play_button")).forEach(function(it) {
     it.style.display = "block";
@@ -107,10 +153,10 @@ function pauseGame() {
 }
 
 function resumeGame() {
-  gameState.forceRestartInEffect = false;
-  console.assert(gameState.playerTurn !== PlayerTurn.NEUTRAL,
+  observedGameState.forceStopTimer = false;
+  console.assert(gameState.currentPlayerTurn !== PlayerTurn.NEUTRAL,
     "Trying to resume game without valid player on turn");
-  setupTimerForPlayer(gameState.playerTurn === PlayerTurn.PLAYER_ONE);
+  setupTimerForPlayer(gameState.currentPlayerTurn === PlayerTurn.PLAYER_ONE);
 
   Array.from(document.getElementsByClassName("play_button")).forEach(function(it) {
     it.style.display = "none";
@@ -141,6 +187,17 @@ function saveStateToLocalStorage(key, state) {
     localStorage.setItem(key, serializedState);
   } catch (error) {
     console.error("Error saving state to local storage:", error);
+  }
+}
+
+function togglePlayerTurn() {
+  console.assert(gameState.currentPlayerTurn !== PlayerTurn.NEUTRAL,
+    "Trying to toggle player turn when no player active");
+
+  if (gameState.currentPlayerTurn === PlayerTurn.PLAYER_ONE) {
+    observedGameState.currentPlayerTurn = PlayerTurn.PLAYER_TWO;
+  } else {
+    observedGameState.currentPlayerTurn = PlayerTurn.PLAYER_ONE;
   }
 }
 
@@ -178,27 +235,6 @@ function isPlayerOneUIElement(element) {
   return currentElement.dataset["playerId"] === "1";
 }
 
-function updateDoublingCube() {
-  const midline = document.getElementById("midline");
-  const doublingCube = document.getElementById("doubling_cube");
-  switch (gameState.cubeOwnership) {
-    case CubeOwnership.NEUTRAL:
-      doublingCube.style.transform = "rotate(90deg)";
-      midline.style.justifyContent = "center";
-      break;
-    case CubeOwnership.PLAYER_ONE:
-      doublingCube.style.transform = "rotate(180deg)";
-      midline.style.justifyContent = "start";
-      break;
-    case CubeOwnership.PLAYER_TWO:
-      doublingCube.style.transform = "rotate(0deg)";
-      midline.style.justifyContent = "end";
-      break;
-  }
-  doublingCube.innerText = gameState.currentGameValue === 1 ? "64"
-    : gameState.currentGameValue;
-}
-
 function setupUIBasedOnGameState() {
   /**
     * Takes the information present in appState (a globally defined variable) and
@@ -221,8 +257,6 @@ function setupUIBasedOnGameState() {
     formatTotalTime(gameState.playerTwoTotalTimeRemainingMs);
   document.getElementById("player_two_reserve_time").innerText =
     formatReserveTime(gameState.playerTwoReserveTimeRemainingMs);
-
-  updateDoublingCube();
 }
 
 function setupUIBasedOnMatchParameters() {
@@ -379,22 +413,9 @@ function setupSettingsDialog() {
   });
 }
 
-function toggleMainUIToShowForPlayer(showForPlayerOne) {
-  document.querySelector("#player_one #main_ui").style.display = showForPlayerOne ?
-    "flex" : "none";
-  document.querySelector("#player_two #main_ui").style.display = showForPlayerOne ?
-    "none" : "flex";
-}
-
 function onClickDone(isPlayerOne) {
-  if (isPlayerOne) {
-    document.querySelector("#player_one #roll_action_ui").style.display = "none";
-  } else {
-    document.querySelector("#player_two #roll_action_ui").style.display = "none";
-  }
-
+  togglePlayerTurn();
   setupTimerForPlayer(!isPlayerOne);
-  toggleMainUIToShowForPlayer(!isPlayerOne);
 }
 
 function onClickDouble(isPlayerOne) {
@@ -413,8 +434,8 @@ function onClickDouble(isPlayerOne) {
 }
 
 function onClickDoubleTake(isPlayerOne) {
-  gameState.currentGameValue = gameState.currentGameValue * 2;
-  gameState.cubeOwnership = isPlayerOne ? CubeOwnership.PLAYER_ONE : CubeOwnership.PLAYER_TWO;
+  observedGameState.currentGameValue = gameState.currentGameValue * 2;
+  observedGameState.cubeOwnership = isPlayerOne ? CubeOwnership.PLAYER_ONE : CubeOwnership.PLAYER_TWO;
 
   const playerTaking = isPlayerOne ? document.getElementById("player_one") :
       document.getElementById("player_two");
@@ -427,7 +448,6 @@ function onClickDoubleTake(isPlayerOne) {
   playerOnTurn.querySelector("#main_ui .double_button").style.display = "none";
 
   document.getElementById("doubling_cube").style.display = "flex";
-  updateDoublingCube();
   setupTimerForPlayer(!isPlayerOne);
 }
 
@@ -452,7 +472,7 @@ function onClickStart(didPlayerOneClick) {
     * If startType, then it's a coin flip to start
     * Otherwise, the player that clicked the button does first
     **/
-  gameState.forceRestartInEffect = false;
+  observedGameState.forceStopTimer = false;
 
   Array.from(document.getElementsByClassName("start_ui")).forEach(function(it) {
     it.style.display = "none";
@@ -469,8 +489,7 @@ function onClickStart(didPlayerOneClick) {
     isPlayerOneFirst = didPlayerOneClick;
   }
 
-  gameState.currentPlayerTurn = isPlayerOneFirst ? PlayerTurn.PLAYER_ONE : PlayerTurn.PLAYER_TWO;
-  toggleMainUIToShowForPlayer(isPlayerOneFirst);
+  observedGameState.currentPlayerTurn = isPlayerOneFirst ? PlayerTurn.PLAYER_ONE : PlayerTurn.PLAYER_TWO;
   setupTimerForPlayer(isPlayerOneFirst);
 }
 
@@ -532,16 +551,16 @@ function setupTimerForPlayer(isPlayerOne) {
   let expected;
 
   function tick() {
-    if (gameState.forceRestartInEffect) {
+    if (gameState.forceStopTimer) {
       return;
     }
     if (isPlayerOne) {
       if (gameState.playerOneReserveTimeRemainingMs > 0) {
-        gameState.playerOneReserveTimeRemainingMs -= ONE_SECOND_IN_MS;
+        observedGameState.playerOneReserveTimeRemainingMs -= ONE_SECOND_IN_MS;
         document.getElementById("player_one_reserve_time").innerText =
           formatReserveTime(gameState.playerOneReserveTimeRemainingMs);
       } else {
-        gameState.playerOneTotalTimeRemainingMs -= ONE_SECOND_IN_MS;
+        observedGameState.playerOneTotalTimeRemainingMs -= ONE_SECOND_IN_MS;
         document.getElementById("player_one_total_time").innerText =
           formatTotalTime(gameState.playerOneTotalTimeRemainingMs);
         if (gameState.playerOneTotalTimeRemainingMs <= 0) {
@@ -550,11 +569,11 @@ function setupTimerForPlayer(isPlayerOne) {
       }
     } else {
       if (gameState.playerTwoReserveTimeRemainingMs > 0) {
-        gameState.playerTwoReserveTimeRemainingMs -= ONE_SECOND_IN_MS;
+        observedGameState.playerTwoReserveTimeRemainingMs -= ONE_SECOND_IN_MS;
         document.getElementById("player_two_reserve_time").innerText =
           formatReserveTime(gameState.playerTwoReserveTimeRemainingMs);
       } else {
-        gameState.playerTwoTotalTimeRemainingMs -= ONE_SECOND_IN_MS;
+        observedGameState.playerTwoTotalTimeRemainingMs -= ONE_SECOND_IN_MS;
         document.getElementById("player_two_total_time").innerText =
           formatTotalTime(gameState.playerTwoTotalTimeRemainingMs);
         if (gameState.playerTwoTotalTimeRemainingMs <= 0) {
@@ -568,26 +587,26 @@ function setupTimerForPlayer(isPlayerOne) {
     expected += ONE_SECOND_IN_MS;
     const timeoutId = setTimeout(tick, Math.max(0, ONE_SECOND_IN_MS - drift));
     if (isPlayerOne) {
-      gameState.playerOneTimeoutId = timeoutId;
+      observedGameState.playerOneTimeoutId = timeoutId;
     } else {
-      gameState.playerTwoTimeoutId = timeoutId;
+      observedGameState.playerTwoTimeoutId = timeoutId;
     }
   }
 
   expected = Date.now() + ONE_SECOND_IN_MS;
   const timeoutId = setTimeout(tick, ONE_SECOND_IN_MS);
   if (isPlayerOne) {
-    gameState.playerOneTimeoutId = timeoutId;
+    observedGameState.playerOneTimeoutId = timeoutId;
     clearTimeout(gameState.playerTwoTimeoutId);
-    gameState.playerTwoTimeoutId = null;
-    gameState.playerTwoReserveTimeRemainingMs = matchParameters.reserveTimeMs;
+    observedGameState.playerTwoTimeoutId = null;
+    observedGameState.playerTwoReserveTimeRemainingMs = matchParameters.reserveTimeMs;
     document.getElementById("player_two_reserve_time").innerText =
       formatReserveTime(gameState.playerTwoReserveTimeRemainingMs);
   } else {
-    gameState.playerTwoTimeoutId = timeoutId;
+    observedGameState.playerTwoTimeoutId = timeoutId;
     clearTimeout(gameState.playerOneTimeoutId);
-    gameState.playerOneTimeoutId = null;
-    gameState.playerOneReserveTimeRemainingMs = matchParameters.reserveTimeMs;
+    observedGameState.playerOneTimeoutId = null;
+    observedGameState.playerOneReserveTimeRemainingMs = matchParameters.reserveTimeMs;
     document.getElementById("player_one_reserve_time").innerText =
       formatReserveTime(gameState.playerOneReserveTimeRemainingMs);
   }
@@ -603,8 +622,8 @@ function handlePlayerWin(didPlayerOneWin, multiplier=1, forceGameWin=false) {
   const score = gameState.currentGameValue * multiplier
 
   if (didPlayerOneWin) {
-    gameState.playerOneGames += 1;
-    gameState.playerOneScore += score;
+    observedGameState.playerOneGames += 1;
+    observedGameState.playerOneScore += score;
     if (forceGameWin || gameState.playerOneScore >= matchParameters.scoreLimit) {
       fullReset();
       alert(`${matchParameters.playerOneName} wins`);
@@ -612,8 +631,8 @@ function handlePlayerWin(didPlayerOneWin, multiplier=1, forceGameWin=false) {
       return;
     }
   } else {
-    gameState.playerTwoGames += 1;
-    gameState.playerTwoScore += score;
+    observedGameState.playerTwoGames += 1;
+    observedGameState.playerTwoScore += score;
     if (forceGameWin || gameState.playerTwoScore >= matchParameters.scoreLimit) {
       fullReset();
       alert(`${matchParameters.playerTwoName} wins`);
@@ -622,17 +641,16 @@ function handlePlayerWin(didPlayerOneWin, multiplier=1, forceGameWin=false) {
     }
   }
 
-  gameState.currentGameValue = 1;
-  gameState.cubeOwnership = CubeOwnership.NEUTRAL;
-  gameState.currentPlayerTurn = CubeOwnership.NEUTRAL;
+  observedGameState.currentGameValue = 1;
+  observedGameState.cubeOwnership = CubeOwnership.NEUTRAL;
+  observedGameState.currentPlayerTurn = CubeOwnership.NEUTRAL;
 
   document.getElementById("doubling_cube").style.display = "flex";
-  updateDoublingCube();
 
   clearTimeout(gameState.playerTwoTimeoutId);
-  gameState.playerTwoTimeoutId = null;
+  observedGameState.playerTwoTimeoutId = null;
   clearTimeout(gameState.playerOneTimeoutId);
-  gameState.playerOneTimeoutId = null;
+  observedGameState.playerOneTimeoutId = null;
 
   setupUIBasedOnGameState();
   document.getElementById("player_two_reserve_time").innerText =
@@ -690,7 +708,7 @@ document.addEventListener("DOMContentLoaded", () => {
   resetGameState();
   const savedGameState = loadStateFromLocalStorage(GAME_STATE_KEY)
   for (const property in savedGameState) {
-    gameState[property] = savedGameState[property];
+    observedGameState[property] = savedGameState[property];
   }
   setupUIBasedOnGameState();
 
