@@ -19,7 +19,6 @@ body {
   color: var(--text-primary);
 }
 
-/** These both control the settings dialog **/
 .dialog {
   width: 80%;
   height: 45%;
@@ -56,11 +55,16 @@ body {
   }
 }
 
-.default_hidden {
-  display: none;
+#unclickable_overlay {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-color: rgba(0, 0, 0, 0.5);
+  z-index: 9999;
+  pointer-events: auto;
 }
-
-/** **/
 
 .install_banner_visibility {
   /*ALWAYS NONE UNLESS beforeinstallprompt EVENT IS DETECTED*/
@@ -122,6 +126,7 @@ body {
 }
 
 .players_container {
+  position: relative;
 	display: flex;
   flex: 1 1 auto;
   flex-direction: column;
@@ -338,4 +343,8 @@ body {
   min-width: 20%;
 
   font-size: 2.5em;
+}
+
+.default_hidden {
+  display: none;
 }

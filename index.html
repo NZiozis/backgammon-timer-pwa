@@ -133,6 +133,12 @@
           <button class="sidebar_button concede_button">
             <img src="icons/concede.svg" alt="Player one concede" />
           </button>
+          <button class="sidebar_button pause_button">
+            <img src="icons/pause.svg" alt="Player two pause" />
+          </button>
+          <button class="sidebar_button play_button default_hidden">
+            <img src="icons/play.svg" alt="Player two play" />
+          </button>
           <button class="sidebar_button settings_button">
             <img src="icons/settings.svg" alt="Player one setings" />
           </button>
@@ -171,12 +177,19 @@
           <button class="sidebar_button concede_button">
             <img src="icons/concede.svg" alt="Player two concede" />
           </button>
+          <button class="sidebar_button pause_button">
+            <img src="icons/pause.svg" alt="Player two pause" />
+          </button>
+          <button class="sidebar_button play_button default_hidden">
+            <img src="icons/play.svg" alt="Player two play" />
+          </button>
           <button class="sidebar_button settings_button">
             <img src="icons/settings.svg" alt="Player two setings" />
           </button>
         </div>
       </div>
       <div class="players_container">
+        <div id="unclickable_overlay" class="default_hidden"></div>
         <div id="player_one" class="player_container">
           <!-- This is where player one interacts with the UI -->
           <action-ui class="action_ui" data-player-id="1"/>

@@ -89,6 +89,39 @@ function resetGameState() {
   gameState.playerTwoReserveTimeRemainingMs = matchParameters.reserveTimeMs;
 }
 
+function pauseGame() {
+  gameState.forceRestartInEffect = true;
+  clearTimeout(gameState.playerTwoTimeoutId);
+  gameState.playerTwoTimeoutId = null;
+  clearTimeout(gameState.playerOneTimeoutId);
+  gameState.playerOneTimeoutId = null;
+
+  Array.from(document.getElementsByClassName("play_button")).forEach(function(it) {
+    it.style.display = "block";
+  })
+  Array.from(document.getElementsByClassName("pause_button")).forEach(function(it) {
+    it.style.display = "none";
+  })
+
+  document.getElementById("unclickable_overlay").style.display = "block";
+}
+
+function resumeGame() {
+  gameState.forceRestartInEffect = false;
+  console.assert(gameState.playerTurn !== PlayerTurn.NEUTRAL,
+    "Trying to resume game without valid player on turn");
+  setupTimerForPlayer(gameState.playerTurn === PlayerTurn.PLAYER_ONE);
+
+  Array.from(document.getElementsByClassName("play_button")).forEach(function(it) {
+    it.style.display = "none";
+  })
+  Array.from(document.getElementsByClassName("pause_button")).forEach(function(it) {
+    it.style.display = "block";
+  })
+
+  document.getElementById("unclickable_overlay").style.display = "none";
+}
+
 function loadStateFromLocalStorage(key) {
   try {
     const serializedState = localStorage.getItem(key);
@@ -229,6 +262,14 @@ function setupSidebar() {
 
   Array.from(document.getElementsByClassName("settings_button")).forEach(function(it) {
     it.onclick = onClickSettings;
+  })
+
+  Array.from(document.getElementsByClassName("play_button")).forEach(function(it) {
+    it.onclick = resumeGame;
+  })
+
+  Array.from(document.getElementsByClassName("pause_button")).forEach(function(it) {
+    it.onclick = pauseGame;
   })
 }
 
@@ -428,6 +469,7 @@ function onClickStart(didPlayerOneClick) {
     isPlayerOneFirst = didPlayerOneClick;
   }
 
+  gameState.currentPlayerTurn = isPlayerOneFirst ? PlayerTurn.PLAYER_ONE : PlayerTurn.PLAYER_TWO;
   toggleMainUIToShowForPlayer(isPlayerOneFirst);
   setupTimerForPlayer(isPlayerOneFirst);
 }
