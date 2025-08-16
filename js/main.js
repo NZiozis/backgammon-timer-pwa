@@ -68,15 +68,15 @@ const gameState = {
 }
 const handleGameStateChange = {
   set(target, property, value) {
+    const playerOneMainUI = document.querySelector("#player_one #main_ui");
+    const playerTwoMainUI = document.querySelector("#player_two #main_ui");
+
     if (property === "forceStopTimer" && value === true) {
       clearTimeout(target.playerTwoTimeoutId);
       target.playerTwoTimeoutId = null;
       clearTimeout(target.playerOneTimeoutId);
       target.playerOneTimeoutId = null;
     } else if (property === "currentPlayerTurn") {
-      const playerOneMainUI = document.querySelector("#player_one #main_ui");
-      const playerTwoMainUI = document.querySelector("#player_two #main_ui");
-
       const previousWasNeutral = gameState.currentPlayerTurn === PlayerTurn.NEUTRAL;
 
       if (value === PlayerTurn.PLAYER_ONE) {
@@ -96,6 +96,7 @@ const handleGameStateChange = {
     } else if (property === "cubeOwnership") {
       const midline = document.getElementById("midline");
       const doublingCube = document.getElementById("doubling_cube");
+
       switch (value) {
         case CubeOwnership.NEUTRAL:
           doublingCube.style.transform = "rotate(90deg)";
@@ -110,8 +111,37 @@ const handleGameStateChange = {
           midline.style.justifyContent = "end";
           break;
       }
-      doublingCube.innerText = gameState.currentGameValue === 1 ? "64"
-        : gameState.currentGameValue;
+      if (value !== CubeOwnership.NEUTRAL) {
+        switch (target.currentPlayerTurn) {
+          case PlayerTurn.PLAYER_ONE:
+            playerOneMainUI.style.display = "flex";
+            playerOneMainUI.querySelector(".double_button").style.display = "none";
+            playerTwoMainUI.querySelector(".double_button").style.display = "block";
+            document.querySelector("#player_two #double_action_ui").style.display = "none";
+            break;
+          case PlayerTurn.PLAYER_TWO:
+            playerTwoMainUI.style.display = "flex";
+            playerOneMainUI.querySelector(".double_button").style.display = "block";
+            playerTwoMainUI.querySelector(".double_button").style.display = "none";
+            document.querySelector("#player_one #double_action_ui").style.display = "none";
+            break
+          case PlayerTurn.NEUTRAL:
+            console.error("Turn cannot be neutral if cube ownership is not neutral")
+            break
+        }
+      }
+
+    } else if (property === "currentGameValue") {
+      const doublingCube = document.getElementById("doubling_cube");
+      doublingCube.innerText = value === 1 ? "64" : value;
+    } else if (property === "playerOneScore") {
+      document.getElementById("player_one_score").innerText = value;
+    } else if (property === "playerOneGames") {
+      document.getElementById("player_one_games").innerText = formatGamesValue(value);
+    } else if (property === "playerTwoScore") {
+      document.getElementById("player_two_score").innerText = value;
+    } else if (property === "playerTwoGames") {
+      document.getElementById("player_two_games").innerText = formatGamesValue(value);
     }
 
 
@@ -240,19 +270,11 @@ function setupUIBasedOnGameState() {
     * Takes the information present in appState (a globally defined variable) and
     * uses that to update the UI. This is typically only done on page load
     */
-  document.getElementById("player_one_score").innerText = gameState.playerOneScore;
-  document.getElementById("player_one_games").innerText =
-    formatGamesValue(gameState.playerOneGames);
   document.getElementById("player_one_total_time").innerText =
     formatTotalTime(gameState.playerOneTotalTimeRemainingMs);
   document.getElementById("player_one_reserve_time").innerText =
     formatReserveTime(gameState.playerOneReserveTimeRemainingMs);
 
-
-  document.getElementById("player_two_score").innerText =
-    gameState.playerTwoScore;
-  document.getElementById("player_two_games").innerText =
-    formatGamesValue(gameState.playerTwoGames);
   document.getElementById("player_two_total_time").innerText =
     formatTotalTime(gameState.playerTwoTotalTimeRemainingMs);
   document.getElementById("player_two_reserve_time").innerText =
@@ -436,16 +458,6 @@ function onClickDouble(isPlayerOne) {
 function onClickDoubleTake(isPlayerOne) {
   observedGameState.currentGameValue = gameState.currentGameValue * 2;
   observedGameState.cubeOwnership = isPlayerOne ? CubeOwnership.PLAYER_ONE : CubeOwnership.PLAYER_TWO;
-
-  const playerTaking = isPlayerOne ? document.getElementById("player_one") :
-      document.getElementById("player_two");
-  const playerOnTurn = isPlayerOne ? document.getElementById("player_two") :
-      document.getElementById("player_one")
-
-  playerTaking.querySelector("#double_action_ui").style.display = "none";
-
-  playerOnTurn.querySelector("#main_ui").style.display = "flex";
-  playerOnTurn.querySelector("#main_ui .double_button").style.display = "none";
 
   document.getElementById("doubling_cube").style.display = "flex";
   setupTimerForPlayer(!isPlayerOne);
