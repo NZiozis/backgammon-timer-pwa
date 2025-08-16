@@ -25,7 +25,6 @@
 - [X] Something for when score cap is reached
 - [X] UI to show the score cap while playing
 - [X] Pausing functionality
-
 - [X] BUG: Option to double doesn't reappear for subsequent double/takes
 
 THESE CAN BE THE SAME DIALOG. JUST NEED TO CHANGE THE CONTENT

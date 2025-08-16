@@ -142,6 +142,18 @@ const handleGameStateChange = {
       document.getElementById("player_two_score").innerText = value;
     } else if (property === "playerTwoGames") {
       document.getElementById("player_two_games").innerText = formatGamesValue(value);
+    } else if (property  === "playerOneReserveTimeRemainingMs") {
+      document.getElementById("player_one_reserve_time").innerText =
+        formatReserveTime(value);
+    } else if (property  === "playerTwoReserveTimeRemainingMs") {
+      document.getElementById("player_two_reserve_time").innerText =
+        formatReserveTime(value);
+    } else if (property === "playerOneTotalTimeRemainingMs") {
+      document.getElementById("player_one_total_time").innerText =
+        formatTotalTime(value);
+    } else if (property === "playerTwoTotalTimeRemainingMs") {
+      document.getElementById("player_two_total_time").innerText =
+        formatTotalTime(value);
     }
 
 
@@ -263,22 +275,6 @@ function isPlayerOneUIElement(element) {
     }
   }
   return currentElement.dataset["playerId"] === "1";
-}
-
-function setupUIBasedOnGameState() {
-  /**
-    * Takes the information present in appState (a globally defined variable) and
-    * uses that to update the UI. This is typically only done on page load
-    */
-  document.getElementById("player_one_total_time").innerText =
-    formatTotalTime(gameState.playerOneTotalTimeRemainingMs);
-  document.getElementById("player_one_reserve_time").innerText =
-    formatReserveTime(gameState.playerOneReserveTimeRemainingMs);
-
-  document.getElementById("player_two_total_time").innerText =
-    formatTotalTime(gameState.playerTwoTotalTimeRemainingMs);
-  document.getElementById("player_two_reserve_time").innerText =
-    formatReserveTime(gameState.playerTwoReserveTimeRemainingMs);
 }
 
 function setupUIBasedOnMatchParameters() {
@@ -664,7 +660,6 @@ function handlePlayerWin(didPlayerOneWin, multiplier=1, forceGameWin=false) {
   clearTimeout(gameState.playerOneTimeoutId);
   observedGameState.playerOneTimeoutId = null;
 
-  setupUIBasedOnGameState();
   document.getElementById("player_two_reserve_time").innerText =
     formatReserveTime(matchParameters.reserveTimeMs);
   document.getElementById("player_one_reserve_time").innerText =
@@ -694,7 +689,6 @@ function fullReset() {
 
 function resetUI() {
   setupUIBasedOnMatchParameters();
-  setupUIBasedOnGameState();
 
   Array.from(document.getElementsByClassName("main_ui")).forEach(function(it) {
     it.style.display = "none";
@@ -722,7 +716,6 @@ document.addEventListener("DOMContentLoaded", () => {
   for (const property in savedGameState) {
     observedGameState[property] = savedGameState[property];
   }
-  setupUIBasedOnGameState();
 
   setupSidebar();
   setupMainButtons();
