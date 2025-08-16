@@ -565,12 +565,8 @@ function setupTimerForPlayer(isPlayerOne) {
     if (isPlayerOne) {
       if (gameState.playerOneReserveTimeRemainingMs > 0) {
         observedGameState.playerOneReserveTimeRemainingMs -= ONE_SECOND_IN_MS;
-        document.getElementById("player_one_reserve_time").innerText =
-          formatReserveTime(gameState.playerOneReserveTimeRemainingMs);
       } else {
         observedGameState.playerOneTotalTimeRemainingMs -= ONE_SECOND_IN_MS;
-        document.getElementById("player_one_total_time").innerText =
-          formatTotalTime(gameState.playerOneTotalTimeRemainingMs);
         if (gameState.playerOneTotalTimeRemainingMs <= 0) {
           handlePlayerWin(false /* didPlayerOneWin */, 1, true);
         }
@@ -578,12 +574,8 @@ function setupTimerForPlayer(isPlayerOne) {
     } else {
       if (gameState.playerTwoReserveTimeRemainingMs > 0) {
         observedGameState.playerTwoReserveTimeRemainingMs -= ONE_SECOND_IN_MS;
-        document.getElementById("player_two_reserve_time").innerText =
-          formatReserveTime(gameState.playerTwoReserveTimeRemainingMs);
       } else {
         observedGameState.playerTwoTotalTimeRemainingMs -= ONE_SECOND_IN_MS;
-        document.getElementById("player_two_total_time").innerText =
-          formatTotalTime(gameState.playerTwoTotalTimeRemainingMs);
         if (gameState.playerTwoTotalTimeRemainingMs <= 0) {
           handlePlayerWin(true /* didPlayerOneWin */, 1, true);
         }
@@ -608,15 +600,11 @@ function setupTimerForPlayer(isPlayerOne) {
     clearTimeout(gameState.playerTwoTimeoutId);
     observedGameState.playerTwoTimeoutId = null;
     observedGameState.playerTwoReserveTimeRemainingMs = matchParameters.reserveTimeMs;
-    document.getElementById("player_two_reserve_time").innerText =
-      formatReserveTime(gameState.playerTwoReserveTimeRemainingMs);
   } else {
     observedGameState.playerTwoTimeoutId = timeoutId;
     clearTimeout(gameState.playerOneTimeoutId);
     observedGameState.playerOneTimeoutId = null;
     observedGameState.playerOneReserveTimeRemainingMs = matchParameters.reserveTimeMs;
-    document.getElementById("player_one_reserve_time").innerText =
-      formatReserveTime(gameState.playerOneReserveTimeRemainingMs);
   }
 }
 
@@ -651,7 +639,7 @@ function handlePlayerWin(didPlayerOneWin, multiplier=1, forceGameWin=false) {
 
   observedGameState.currentGameValue = 1;
   observedGameState.cubeOwnership = CubeOwnership.NEUTRAL;
-  observedGameState.currentPlayerTurn = CubeOwnership.NEUTRAL;
+  observedGameState.currentPlayerTurn = PlayerTurn.NEUTRAL;
 
   document.getElementById("doubling_cube").style.display = "flex";
 
