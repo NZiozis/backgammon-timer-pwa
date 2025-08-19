@@ -28,8 +28,9 @@
 - [X] BUG: Option to double doesn't reappear for subsequent double/takes
 
 THESE CAN BE THE SAME DIALOG. JUST NEED TO CHANGE THE CONTENT
-- [ ] "Do you accept" logic for the player being offered the game on concede
-- [ ] Alert that changing settings mid-game will cause the game to reset
+- [X] "Do you accept" logic for the player being offered the game on concede
+- [X] Alert that changing settings mid-game will cause the game to reset
+- [ ] Show better alert when player wins
 
 - [ ] Hosted online and downloadable
 - [ ] Style pass

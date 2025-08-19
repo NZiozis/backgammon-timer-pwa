@@ -307,6 +307,52 @@ function onClickSettings() {
   document.getElementById("settings_dialog").showModal();
 }
 
+function showAlert(title, content, showToPlayerOne, onClickOk, onClickClose) {
+  const alertDialog = document.getElementById("alert_dialog");
+
+  document.getElementById("alert_title").innerText = title;
+  document.getElementById("alert_content").innerText = content;
+
+  if (showToPlayerOne) {
+    alertDialog.style.transform = "rotate(180deg)";
+  }
+
+  const abortController = new AbortController();
+  const signal = abortController.signal;
+
+  document.getElementById("close_alert").addEventListener("click", (event) => {
+    onClickClose();
+    alertDialog.close();
+  }, {signal});
+
+  document.getElementById("ok_alert").addEventListener("click", (event) => {
+    onClickOk();
+    alertDialog.close();
+  }, {signal});
+
+  alertDialog.addEventListener("close", () => {
+    alertDialog.style.transform = "rotate(0deg)";
+    abortController.abort();
+  }, { once: true } );
+
+  alertDialog.showModal();
+}
+
+function alertToAcceptConcede(isPlayerOneConceding, points) {
+  const name = isPlayerOneConceding ? matchParameters.playerOneName : matchParameters.playerTwoName;
+
+  showAlert(
+    `Accept ${points} points?`,
+    `${name} is offering to concede the game with ${points} points. Do you accept?`,
+    !isPlayerOneConceding,
+    () => {
+      handlePlayerWin(!isPlayerOneConceding, points);
+      document.getElementById("concede_dialog").close();
+    },
+    () => {document.getElementById("concede_dialog").close();},
+  )
+}
+
 function setupSidebar() {
   Array.from(document.getElementsByClassName("concede_button")).forEach(function(it) {
     it.onclick = () => onClickConcede(isPlayerOneUIElement(it));
@@ -338,20 +384,19 @@ function setupConcedeDialog(isPlayerOneConceding) {
   const concedeOneMatchButton = document.getElementById("concede_one_match");
   concedeOneMatchButton.innerText = `Concede ${gameState.currentGameValue}`;
   concedeOneMatchButton.addEventListener("click", (event) => {
-    handlePlayerWin(!isPlayerOneConceding);
-    dialog.close();
+    alertToAcceptConcede(isPlayerOneConceding, 1);
   }, {signal});
+
   const concedeTwoMatchButton = document.getElementById("concede_two_match");
   concedeTwoMatchButton.innerText = `Concede ${gameState.currentGameValue * 2}`;
   concedeTwoMatchButton.addEventListener("click", (event) => {
-    handlePlayerWin(!isPlayerOneConceding, 2);
-    dialog.close();
+    alertToAcceptConcede(isPlayerOneConceding, 2);
   }, {signal});
+
   const concedeThreeMatchButton = document.getElementById("concede_three_match");
   concedeThreeMatchButton.innerText = `Concede ${gameState.currentGameValue * 3}`;
   concedeThreeMatchButton.addEventListener("click", (event) => {
-    handlePlayerWin(!isPlayerOneConceding, 3);
-    dialog.close();
+    alertToAcceptConcede(isPlayerOneConceding, 3);
   }, {signal});
 
   const concedeGameButton = document.getElementById("concede_game");
@@ -359,7 +404,6 @@ function setupConcedeDialog(isPlayerOneConceding) {
     handlePlayerWin(!isPlayerOneConceding, 1, true);
     dialog.close();
   }, {signal});
-
 
   document.getElementById("close_concede").addEventListener("click", (event) => {
     dialog.close();
@@ -390,45 +434,60 @@ function setupSettingsDialog() {
 
   document.getElementById("formReserveTimeSeconds").value = matchParameters["reserveTimeMs"] / 1000;
 
+  const abortController = new AbortController();
+  const signal = abortController.signal;
+
   closeButton.addEventListener("click", () => {
     dialog.close();
-  });
+  }, {signal});
 
   saveButton.addEventListener("click", (event) => {
-    event.preventDefault();
+    showAlert(
+      "Change settings?",
+      "Changing the settings will reset the game. Are you sure you want to change?",
+      false,
+      () => {
+        event.preventDefault();
 
-    if (!form.checkValidity()) {
-      form.reportVailidity();
-      showFeedback("Please fill out all fields in the form", false);
-      return;
-    }
-
-    let newTotalGameTimeSeconds = 0;
-    for (const element of form.elements) {
-      if (element.name && element.type !== "submit" && element.type !== "button") {
-        if (element.type === "checkbox") {
-          matchParameters[element.name] = element.checked;
+        if (!form.checkValidity()) {
+          form.reportVailidity();
+          showFeedback("Please fill out all fields in the form", false);
+          return;
         }
-        else if (element.name === "formTotalGameTimeMinutes") {
-          newTotalGameTimeSeconds += (+element.value) * 60;
+
+        let newTotalGameTimeSeconds = 0;
+        for (const element of form.elements) {
+          if (element.name && element.type !== "submit" && element.type !== "button") {
+            if (element.type === "checkbox") {
+              matchParameters[element.name] = element.checked;
+            }
+            else if (element.name === "formTotalGameTimeMinutes") {
+              newTotalGameTimeSeconds += (+element.value) * 60;
+            }
+            else if (element.name === "formTotalGameTimeSeconds") {
+              newTotalGameTimeSeconds += (+element.value);
+            } else if (element.name === "formReserveTimeSeconds") {
+              matchParameters.reserveTimeMs = (+element.value) * 1000;
+            } else {
+              matchParameters[element.name] = element.value;
+            }
+          }
         }
-        else if (element.name === "formTotalGameTimeSeconds") {
-          newTotalGameTimeSeconds += (+element.value);
-        } else if (element.name === "formReserveTimeSeconds") {
-          matchParameters.reserveTimeMs = (+element.value) * 1000;
-        } else {
-          matchParameters[element.name] = element.value;
-        }
-      }
-    }
-    matchParameters["totalGameTimeMs"] = newTotalGameTimeSeconds * 1000;
+        matchParameters["totalGameTimeMs"] = newTotalGameTimeSeconds * 1000;
 
-    saveStateToLocalStorage(MATCH_PARAMETERS_KEY, matchParameters);
+        saveStateToLocalStorage(MATCH_PARAMETERS_KEY, matchParameters);
 
-    fullReset();
+        fullReset();
 
-    dialog.close();
-  });
+        dialog.close();
+      },
+      () => {dialog.close();}
+    );
+  }, {signal});
+
+  dialog.addEventListener("close", () => {
+    abortController.abort();
+  }, { once: true } );
 }
 
 function onClickDone(isPlayerOne) {
