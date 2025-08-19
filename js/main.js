@@ -307,7 +307,7 @@ function onClickSettings() {
   document.getElementById("settings_dialog").showModal();
 }
 
-function showAlert(title, content, showToPlayerOne, onClickOk, onClickClose) {
+function showAlert(title, content, showToPlayerOne, onClickOk, hideClose, onClickClose) {
   const alertDialog = document.getElementById("alert_dialog");
 
   document.getElementById("alert_title").innerText = title;
@@ -320,10 +320,16 @@ function showAlert(title, content, showToPlayerOne, onClickOk, onClickClose) {
   const abortController = new AbortController();
   const signal = abortController.signal;
 
-  document.getElementById("close_alert").addEventListener("click", (event) => {
-    onClickClose();
-    alertDialog.close();
-  }, {signal});
+  const closeButton = document.getElementById("close_alert");
+  if (hideClose) {
+    closeButton.style.display = "none";
+  } else {
+    closeButton.style.display = "block";
+    closeButton.addEventListener("click", (event) => {
+      onClickClose();
+      alertDialog.close();
+    }, {signal});
+  }
 
   document.getElementById("ok_alert").addEventListener("click", (event) => {
     onClickOk();
@@ -349,6 +355,7 @@ function alertToAcceptConcede(isPlayerOneConceding, points) {
       handlePlayerWin(!isPlayerOneConceding, points);
       document.getElementById("concede_dialog").close();
     },
+    false,
     () => {document.getElementById("concede_dialog").close();},
   )
 }
@@ -481,6 +488,7 @@ function setupSettingsDialog() {
 
         dialog.close();
       },
+      false,
       () => {dialog.close();}
     );
   }, {signal});
@@ -680,8 +688,14 @@ function handlePlayerWin(didPlayerOneWin, multiplier=1, forceGameWin=false) {
     observedGameState.playerOneGames += 1;
     observedGameState.playerOneScore += score;
     if (forceGameWin || gameState.playerOneScore >= matchParameters.scoreLimit) {
-      fullReset();
-      alert(`${matchParameters.playerOneName} wins`);
+      showAlert(
+        `${matchParameters.playerOneName} wins`,
+        `${matchParameters.playerOneName} won the game to ${matchParameters.scoreLimit}`,
+        true,
+        () => {fullReset();},
+        true,
+        undefined,
+      )
 
       return;
     }
@@ -689,8 +703,14 @@ function handlePlayerWin(didPlayerOneWin, multiplier=1, forceGameWin=false) {
     observedGameState.playerTwoGames += 1;
     observedGameState.playerTwoScore += score;
     if (forceGameWin || gameState.playerTwoScore >= matchParameters.scoreLimit) {
-      fullReset();
-      alert(`${matchParameters.playerTwoName} wins`);
+      showAlert(
+        `${matchParameters.playerTwoName} wins`,
+        `${matchParameters.playerTwoName} won the game to ${matchParameters.scoreLimit}`,
+        false,
+        () => {fullReset();},
+        true,
+        undefined,
+      )
 
       return;
     }
