@@ -1,0 +1,350 @@
+html {
+	height: 100%;
+}
+
+body {
+	--color-primary: #ffe9ce;
+  --color-primary-contrast: #000000;
+  --color-secondary: #308d43;
+  --color-secondary-contrast: #ffffff;
+  --color-disabled: light-gray;
+
+  --text-primary: black;
+  --text-secondary: #636363;
+  --text-size-big: 1.4em;
+
+	height: 100%;
+	margin: 0;
+
+  color: var(--text-primary);
+}
+
+.dialog {
+  width: 80%;
+  height: 45%;
+
+  border: transparent;
+  border-radius: 25px;
+  padding: 25px;
+
+  .container {
+    height: 100%;
+
+    display: flex;
+    flex-direction: column;
+    gap: 2%;
+  }
+
+  .title {
+    font-size: x-large;
+    font-weight: bold;
+  }
+
+  .content {
+    flex: 1 1 auto;
+  }
+
+  .buttons_row {
+    display: flex;
+    justify-content: end;
+    gap: 2%;
+  }
+
+  &::backdrop {
+    background-color: rgba(0, 0, 0, 0.6);
+  }
+}
+
+#unclickable_overlay {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-color: rgba(0, 0, 0, 0.5);
+  z-index: 9999;
+  pointer-events: auto;
+}
+
+.install_banner_visibility {
+  /*ALWAYS NONE UNLESS beforeinstallprompt EVENT IS DETECTED*/
+  display: none;
+}
+
+.install_banner_container {
+  display: flex;
+  padding: 15px;
+  cursor: pointer;
+}
+
+.install_banner {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-grow: 1;
+}
+
+.install_banner_content {
+  display: flex;
+  gap: 10px;
+  align-items: center;
+}
+
+.install_banner_description {
+  display: flex;
+  flex-direction: column;
+
+  .install_banner_title {
+    font-size: 1rem;
+  }
+  .install_banner_subtitle {
+    color: var(--text-secondary);
+    font-size: 0.8rem;
+  }
+}
+
+.install_banner_close {
+  width: 50px;
+  height: 50px;
+
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.install_banner_icon {
+  width: 50px;
+  height: 50px;
+  border-radius: 10px;
+}
+
+.main_container {
+	display: flex;
+  flex-direction: row-reverse;
+	min-height: 100%;
+	min-width: 100%;
+}
+
+.players_container {
+  position: relative;
+	display: flex;
+  flex: 1 1 auto;
+  flex-direction: column;
+}
+
+.sidebar {
+	display: flex;
+	align-content: center;
+	justify-content: space-between;
+
+  flex-direction: column;
+  min-height: 100%;
+
+  span {
+    writing-mode: vertical-lr;
+  }
+}
+
+.sidebar_middle {
+  display: flex;
+  flex-direction: row-reverse;
+  align-items: center;
+}
+.sidebar_game_info {
+  font-size: 0.8em;
+  writing-mode: vertical-lr;
+}
+.sidebar_score {
+  display: inline-flex;
+  flex-direction: column;
+  align-items: center;
+
+  font-size: var(--text-size-big);
+}
+
+.player_sidebar {
+  display: flex;
+  flex-direction: row-reverse;
+  align-items: center;
+  justify-content: center;
+  padding: 0 0.4rem;
+}
+
+.player_name {
+}
+
+.player_time {
+  font-size: var(--text-size-big);
+}
+
+.player_time_container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  width: 100%;
+  height: 100%;
+}
+
+#player_one {
+  transform: rotate(180deg);
+}
+
+.action_ui {
+  display: flex;
+  flex: 1 1 auto;
+}
+.player_container {
+  display: flex;
+  flex: 4 1 0;
+
+  /*TODO REMOVE*/
+  background-color: red;
+  /***/
+}
+.midline {
+  display: flex;
+  flex: 1 1 0;
+  justify-content: center;
+  padding: 0 2%;
+
+  /*TODO REMOVE*/
+  background-color: green;
+  /***/
+}
+
+.sidebar_buttons {
+  display: flex;
+  gap: 5px;
+  flex-direction: column;
+}
+
+#player_one_sidebar_buttons {
+  transform: rotate(180deg);
+}
+.sidebar_button {
+  border-radius: 100px;
+	background-color: transparent;
+	border: 0;
+	padding: 5px;
+	display: flex;
+	justify-content: center;
+
+  img {
+    aspect-ratio: 1/1;
+    max-width: 50px;
+    width: 65%;
+  }
+
+  &:active {
+    background-color: #00000022;
+  }
+}
+.settings_button {
+}
+
+/* Of main_ui and double_action_ui, only one should be present at the same time */
+.main_ui {
+  display: none;
+  flex-direction: column;
+  flex: 1 1 auto;
+  align-items: center;
+  justify-content: space-evenly;
+}
+.double_action_ui {
+  display: none;
+  flex-direction: column;
+
+  flex: 1 1 auto;
+  align-items: center;
+  justify-content: space-evenly;
+}
+.start_ui {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  flex: 1 1 auto;
+}
+
+.roll_action_ui {
+  display: none;
+  flex-direction: column;
+
+  flex: 1 1 auto;
+  align-items: center;
+  justify-content: space-evenly;
+}
+
+.display_rolled_dice {
+  display: flex;
+  width: 100%;
+  justify-content: space-evenly;
+}
+
+.done_button {
+  width: 55%;
+}
+
+.action_button {
+	border-radius: 25px;
+	text-align: center;
+	border: 0;
+  aspect-ratio: 16/9;
+
+	box-shadow:
+    inset 2px 2px 3px rgba(255, 255, 255, 0.6),
+    inset -2px -2px 3px rgba(0, 0, 0, 0.6);
+
+  &:hover {
+  }
+  &:active {
+    box-shadow:
+      inset -2px -2px 3px rgba(255, 255, 255, 0.6),
+      inset 2px 2px 3px rgba(0, 0, 0, 0.6);
+  }
+}
+
+.roll_button {
+  width: 55%;
+}
+
+.double_button {
+  width: 45%;
+}
+
+.start_button {
+  width: 75%;
+  font-size: var(--text-size-big);
+}
+
+.double_actions_button_container{
+  width: 100%;
+
+  display: flex;
+  justify-content: space-evenly;
+}
+.double_action_button {
+  width: 33%
+}
+.double_take_button {
+}
+
+.double_drop_button {
+}
+
+.cube {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  border-radius: 10px;
+  border: 2px solid black;
+  aspect-ratio: 1/1;
+  min-width: 20%;
+
+  font-size: 2.5em;
+}
+
+.default_hidden {
+  display: none;
+}
