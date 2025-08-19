@@ -30,12 +30,11 @@
 THESE CAN BE THE SAME DIALOG. JUST NEED TO CHANGE THE CONTENT
 - [X] "Do you accept" logic for the player being offered the game on concede
 - [X] Alert that changing settings mid-game will cause the game to reset
-- [ ] Show better alert when player wins
+- [X] Show better alert when player wins
 
 - [ ] Hosted online and downloadable
 - [ ] Style pass
-- [ ] Better win UI
-  - right now I just use a system alert
+- [ ] Save gameState at intervals so accidental refresh doesn't lose data
 
 ## TODO Later
 - [ ] Some sort of undo
