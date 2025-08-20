@@ -42,6 +42,8 @@ body {
 
   .content {
     flex: 1 1 auto;
+    display: flex;
+    flex-direction: column;
   }
 
   .buttons_row {
@@ -330,6 +332,19 @@ body {
 }
 
 .double_drop_button {
+}
+
+.settings_form {
+  height: 100%;
+
+  display: flex;
+  flex-direction: column;
+  flex: auto;
+  gap: 2%;
+
+  input[type="number"] {
+    width: 4em;
+  }
 }
 
 .cube {

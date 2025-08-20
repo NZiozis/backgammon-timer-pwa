@@ -32,7 +32,8 @@ THESE CAN BE THE SAME DIALOG. JUST NEED TO CHANGE THE CONTENT
 - [X] Alert that changing settings mid-game will cause the game to reset
 - [X] Show better alert when player wins
 
-- [ ] Hosted online and downloadable
+- [X] Hosted online and downloadable
+- [X] Buy me a coffee
 - [ ] Style pass
 - [ ] Save gameState at intervals so accidental refresh doesn't lose data
 
