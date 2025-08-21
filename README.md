@@ -6,8 +6,14 @@
 
 ## Run for local development
 ~bash
-  python3 -m http.server 8000
+  make
 ~
+
+## Deploy
+~bash
+  make deploy
+~
+
 
 ## TODO
 - [X] Customize names for players
