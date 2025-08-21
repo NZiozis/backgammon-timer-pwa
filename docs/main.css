@@ -11,7 +11,8 @@ body {
 
   --text-primary: black;
   --text-secondary: #636363;
-  --text-size-big: 1.4em;
+  --text-size-big: clamp(1.4rem, 4vw, 4rem);
+  --text-size-small: clamp(0.8rem, 2.28vw, 2.28rem);
 
 	height: 100%;
 	margin: 0;
@@ -101,7 +102,7 @@ body {
   }
   .install_banner_subtitle {
     color: var(--text-secondary);
-    font-size: 0.8rem;
+    font-size: var(--text-size-small);
   }
 }
 
@@ -130,7 +131,7 @@ body {
 .players_container {
   position: relative;
 	display: flex;
-  flex: 1 1 auto;
+  flex: 20 1 auto;
   flex-direction: column;
 }
 
@@ -138,8 +139,9 @@ body {
 	display: flex;
 	align-content: center;
 	justify-content: space-between;
-
+  flex: 1 1 auto;
   flex-direction: column;
+
   min-height: 100%;
 
   span {
@@ -151,9 +153,10 @@ body {
   display: flex;
   flex-direction: row-reverse;
   align-items: center;
+  justify-content: center;
 }
 .sidebar_game_info {
-  font-size: 0.8em;
+  font-size: var(--text-size-small);
   writing-mode: vertical-lr;
 }
 .sidebar_score {
@@ -173,6 +176,7 @@ body {
 }
 
 .player_name {
+  font-size: var(--text-size-small);
 }
 
 .player_time {
@@ -183,8 +187,6 @@ body {
   display: flex;
   flex-direction: column;
   align-items: center;
-  width: 100%;
-  height: 100%;
 }
 
 #player_one {
@@ -332,6 +334,29 @@ body {
 }
 
 .double_drop_button {
+}
+
+.close_button {
+  min-height: 40px;
+  height: 5vh;
+  aspect-ratio: 2/1;
+
+  border: 1px solid var(--color-secondary);
+  border-radius: 10px;
+
+  background-color: var(--color-secondary-contrast);
+  color: var(--color-secondary);
+}
+.confirm_button {
+  min-height: 40px;
+  height: 5vh;
+  aspect-ratio: 2/1;
+
+  border: 0px;
+  border-radius: 10px;
+
+  background-color: var(--color-secondary);
+  color: var(--color-secondary-contrast);
 }
 
 .settings_form {

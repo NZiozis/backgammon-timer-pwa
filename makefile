@@ -12,10 +12,10 @@ dist:
 	@mkdir -p $(DST_DIR)
 	@echo "Created docs/ directory"
 
-copy_files:
+build:
 	cp -r $(SRC_DIR)/* $(DST_DIR)
 	rm $(DST_DIR)/js/*
 	./node_modules/.bin/esbuild $(SRC_DIR)/js/main.js $(SRC_DIR)/js/after.js --minify --outdir=$(DST_DIR)/js
 
-deploy: dist copy_files
+deploy:
 	git push origin HEAD:$(DEPLOY_BRANCH)

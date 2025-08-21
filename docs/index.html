@@ -53,8 +53,8 @@
           <span id="alert_content">X</span>
         </div>
         <div class="buttons_row">
-          <button id="close_alert" type="button">Close</button>
-          <button id="ok_alert" type="button">Ok</button>
+          <button id="close_alert" class="close_button" type="button">Close</button>
+          <button id="ok_alert" class="confirm_button" type="button">Ok</button>
         </div>
       </div>
     </dialog>
@@ -70,7 +70,7 @@
           <button id="concede_game" type="button">Forfeit Game</button>
         </div>
         <div class="buttons_row">
-          <button id="close_concede" type="button">Close</button>
+          <button id="close_concede" class="close_button" type="button">Close</button>
         </div>
       </div>
     </dialog>
@@ -124,8 +124,8 @@
           </div>
         </div>
         <div class="buttons_row">
-          <button id="close_settings" type="button">Close</button>
-          <button id="save_settings" type="submit">Save</button>
+          <button id="close_settings" class="close_button" type="button">Close</button>
+          <button id="save_settings" class="confirm_button" type="submit">Save</button>
         </div>
     </dialog>
     <div class="install_banner_visibility">
@@ -218,7 +218,7 @@
           </div>
         </div>
         <div id="player_two" class="player_container">
-          <!-- This is where player one interacts with the UI -->
+          <!-- This is where player two interacts with the UI -->
           <action-ui class="action_ui" data-player-id="2"/>
         </div>
       </div>
