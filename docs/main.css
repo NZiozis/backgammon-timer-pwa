@@ -201,7 +201,8 @@ body {
   display: flex;
   flex: 4 1 0;
 
-  /*TODO REMOVE*/
+  /*TODO REMOVE AND MODIFY*/
+  border: 1px solid black;
   background-color: red;
   /***/
 }
@@ -383,6 +384,11 @@ body {
   min-width: 20%;
 
   font-size: 2.5em;
+}
+
+.player_infinity {
+  font-size: var(--text-size-big);
+  transform: rotate(90deg);
 }
 
 .default_hidden {

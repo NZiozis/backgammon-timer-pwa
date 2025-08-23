@@ -98,6 +98,10 @@
               <input type="checkbox" name="useDice" id="useDice" />
             </div>
             <div>
+              <label for="useTimer">Use Timer:</label>
+              <input type="checkbox" name="useTimer" id="useTimer" />
+            </div>
+            <div>
               <label for="startType">Start Type:</label>
               <select id="startType" name="startType">
                 <option id="ALWAYS_RANDOM" value="ALWAYS_RANDOM">Always random</option>
@@ -167,6 +171,9 @@
               <span id="player_one_total_time" class="player_time">0:00</span>
               <span id="player_one_reserve_time" class="player_time">(0)</span>
             </div>
+            <div class="player_infinity default_hidden">
+              <span>&infin;</span>
+            </div>
           </div>
         </div>
         <div class="sidebar_middle">
@@ -187,6 +194,9 @@
             <div class="player_time_container">
               <span id="player_two_total_time" class="player_time">0:00</span>
               <span id="player_two_reserve_time" class="player_time">(0)</span>
+            </div>
+            <div class="player_infinity default_hidden">
+              <span>&infin;</span>
             </div>
           </div>
         </div>
