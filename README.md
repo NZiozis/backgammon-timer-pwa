@@ -40,6 +40,8 @@ THESE CAN BE THE SAME DIALOG. JUST NEED TO CHANGE THE CONTENT
 
 - [X] Hosted online and downloadable
 - [X] Buy me a coffee
+- [X] Do an observe for match parameters changing the UI too.
+  - DO NOT USE FOR BINDING ON CLICK
 - [ ] Style pass
     - [ ] Improve the PWA app icon
 - [ ] Save gameState at intervals so accidental refresh doesn't lose data

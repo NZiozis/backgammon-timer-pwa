@@ -39,6 +39,81 @@ const matchParameters = {
   scoreLimit: 7
 }
 
+const handleMatchParametersChange = {
+  set(target, property, value) {
+    const playerOneMainUI = document.querySelector("#player_one #main_ui");
+    const playerTwoMainUI = document.querySelector("#player_two #main_ui");
+
+    if (property === "playerOneName") {
+      document.getElementById("player_one_name").innerText = value;
+    } else if (property === "playerTwoName") {
+      document.getElementById("player_two_name").innerText = value;
+    } else if (property === "totalGameTimeMs") {
+      document.getElementById("player_one_total_time").innerText = formatTotalTime(value);
+      document.getElementById("player_two_total_time").innerText = formatTotalTime(value);
+    } else if (property === "reserveTimeMs") {
+      document.getElementById("player_one_reserve_time").innerText = formatReserveTime(value);
+      document.getElementById("player_two_reserve_time").innerText = formatReserveTime(value);
+    } else if (property === "scoreLimit") {
+      document.getElementById("sidebar_game_info").innerText = `Game to ${value}`;
+    } else if (property === "useCube") {
+      const doubleButtons = Array.from(document.getElementsByClassName("double_button"));
+
+      if (value) {
+        doubleButtons.forEach(function(it) {
+          const newClassList = [...it.classList].filter(item => item !== "default_hidden");
+          it.classList = newClassList.join(" ");
+        });
+      } else {
+        doubleButtons.forEach(function(it) {
+          const newClassList = [...it.classList];
+          newClassList.push("default_hidden");
+          it.classList = newClassList.join(" ");
+        });
+      }
+    } else if (property === "useDice") {
+      const rollButtons = Array.from(document.getElementsByClassName("roll_button"));
+      const doneMainButtons = Array.from(document.getElementsByClassName("done_main_ui"));
+      const doneRollButtons = Array.from(document.getElementsByClassName("done_roll_ui"));
+
+      if (value) {
+        [...rollButtons, ...doneRollButtons].forEach(function(it) {
+          const newClassList = [...it.classList].filter(item => item !== "default_hidden");
+          it.classList = newClassList.join(" ");
+        });
+        doneMainButtons.forEach(function(it) {
+          const newClassList = [...it.classList];
+          if (!newClassList.includes("default_hidden")) {
+            newClassList.push("default_hidden");
+            it.classList = newClassList.join(" ");
+          }
+        });
+      } else {
+        [...rollButtons, ...doneRollButtons].forEach(function(it) {
+          const newClassList = [...it.classList];
+          if (!newClassList.includes("default_hidden")) {
+            newClassList.push("default_hidden");
+            it.classList = newClassList.join(" ");
+          }
+        });
+        doneMainButtons.forEach(function(it) {
+          const newClassList = [...it.classList].filter(item => item !== "default_hidden");
+          it.classList = newClassList.join(" ");
+        });
+      }
+    } else if (property === "startType") {
+      // NOTHING TO BE DONE. JUST ACCOUNTED FOR
+    } else {
+      console.warn(`Failed to account for match parameter ${property}`);
+    }
+
+
+    return Reflect.set(target, property, value);
+  }
+}
+
+const observedMatchParameters = new Proxy(matchParameters, handleMatchParametersChange);
+
 const gameState = {
   /**
   * This isn't the source of truth for this information, but a place to recover
@@ -161,7 +236,7 @@ const handleGameStateChange = {
   }
 }
 
-const observedGameState = new Proxy(gameState, handleGameStateChange)
+const observedGameState = new Proxy(gameState, handleGameStateChange);
 
 function resetGameState() {
   observedGameState.forceStopTimer = true;
@@ -172,13 +247,13 @@ function resetGameState() {
 
   observedGameState.playerOneGames = 0;
   observedGameState.playerOneScore = 0;
-  observedGameState.playerOneTotalTimeRemainingMs = matchParameters.totalGameTimeMs;
-  observedGameState.playerOneReserveTimeRemainingMs = matchParameters.reserveTimeMs;
+  observedGameState.playerOneTotalTimeRemainingMs = observedMatchParameters.totalGameTimeMs;
+  observedGameState.playerOneReserveTimeRemainingMs = observedMatchParameters.reserveTimeMs;
 
   observedGameState.playerTwoGames = 0;
   observedGameState.playerTwoScore = 0;
-  observedGameState.playerTwoTotalTimeRemainingMs = matchParameters.totalGameTimeMs;
-  observedGameState.playerTwoReserveTimeRemainingMs = matchParameters.reserveTimeMs;
+  observedGameState.playerTwoTotalTimeRemainingMs = observedMatchParameters.totalGameTimeMs;
+  observedGameState.playerTwoReserveTimeRemainingMs = observedMatchParameters.reserveTimeMs;
 }
 
 function pauseGame() {
@@ -277,24 +352,6 @@ function isPlayerOneUIElement(element) {
   return currentElement.dataset["playerId"] === "1";
 }
 
-function setupUIBasedOnMatchParameters() {
-  // This relies on the fact that the id of the option and the value of the option being
-  // the same
-  document.getElementById("player_one_name").innerText = matchParameters.playerOneName;
-  document.getElementById("player_one_total_time").innerText =
-    formatTotalTime(matchParameters.totalGameTimeMs);
-  document.getElementById("player_one_reserve_time").innerText =
-    formatReserveTime(matchParameters.reserveTimeMs);
-
-  document.getElementById("player_two_name").innerText = matchParameters.playerTwoName;
-  document.getElementById("player_two_total_time").innerText =
-    formatTotalTime(matchParameters.totalGameTimeMs);
-  document.getElementById("player_two_reserve_time").innerText =
-    formatReserveTime(matchParameters.reserveTimeMs);
-
-  document.getElementById("sidebar_game_info").innerText = `Game to ${matchParameters.scoreLimit}`;
-}
-
 function onClickConcede(isPlayerOne) {
   setupConcedeDialog(isPlayerOne);
 
@@ -345,7 +402,7 @@ function showAlert(title, content, showToPlayerOne, onClickOk, hideClose, onClic
 }
 
 function alertToAcceptConcede(isPlayerOneConceding, points) {
-  const name = isPlayerOneConceding ? matchParameters.playerOneName : matchParameters.playerTwoName;
+  const name = isPlayerOneConceding ? observedMatchParameters.playerOneName : observedMatchParameters.playerTwoName;
 
   showAlert(
     `Accept ${points} points?`,
@@ -428,18 +485,18 @@ function setupSettingsDialog() {
   const closeButton = document.getElementById("close_settings");
   const saveButton = document.getElementById("save_settings");
 
-  document.getElementById(matchParameters.startType).selected = true;
-  document.getElementById("useCube").checked = matchParameters["useCube"]
-  document.getElementById("useDice").checked = matchParameters["useDice"]
-  document.getElementById("scoreLimit").value = matchParameters["scoreLimit"]
-  document.getElementById("playerOneName").value = matchParameters["playerOneName"]
-  document.getElementById("playerTwoName").value = matchParameters["playerTwoName"]
+  document.getElementById(observedMatchParameters.startType).selected = true;
+  document.getElementById("useCube").checked = observedMatchParameters["useCube"]
+  document.getElementById("useDice").checked = observedMatchParameters["useDice"]
+  document.getElementById("scoreLimit").value = observedMatchParameters["scoreLimit"]
+  document.getElementById("playerOneName").value = observedMatchParameters["playerOneName"]
+  document.getElementById("playerTwoName").value = observedMatchParameters["playerTwoName"]
 
-  const currentTotalGameTimeMs = matchParameters["totalGameTimeMs"]
+  const currentTotalGameTimeMs = observedMatchParameters["totalGameTimeMs"]
   document.getElementById("formTotalGameTimeMinutes").value = Math.floor(currentTotalGameTimeMs / 60000);
   document.getElementById("formTotalGameTimeSeconds").value = currentTotalGameTimeMs % 60000 / 1000;
 
-  document.getElementById("formReserveTimeSeconds").value = matchParameters["reserveTimeMs"] / 1000;
+  document.getElementById("formReserveTimeSeconds").value = observedMatchParameters["reserveTimeMs"] / 1000;
 
   const abortController = new AbortController();
   const signal = abortController.signal;
@@ -466,7 +523,7 @@ function setupSettingsDialog() {
         for (const element of form.elements) {
           if (element.name && element.type !== "submit" && element.type !== "button") {
             if (element.type === "checkbox") {
-              matchParameters[element.name] = element.checked;
+              observedMatchParameters[element.name] = element.checked;
             }
             else if (element.name === "formTotalGameTimeMinutes") {
               newTotalGameTimeSeconds += (+element.value) * 60;
@@ -474,15 +531,15 @@ function setupSettingsDialog() {
             else if (element.name === "formTotalGameTimeSeconds") {
               newTotalGameTimeSeconds += (+element.value);
             } else if (element.name === "formReserveTimeSeconds") {
-              matchParameters.reserveTimeMs = (+element.value) * 1000;
+              observedMatchParameters.reserveTimeMs = (+element.value) * 1000;
             } else {
-              matchParameters[element.name] = element.value;
+              observedMatchParameters[element.name] = element.value;
             }
           }
         }
-        matchParameters["totalGameTimeMs"] = newTotalGameTimeSeconds * 1000;
+        observedMatchParameters["totalGameTimeMs"] = newTotalGameTimeSeconds * 1000;
 
-        saveStateToLocalStorage(MATCH_PARAMETERS_KEY, matchParameters);
+        saveStateToLocalStorage(MATCH_PARAMETERS_KEY, observedMatchParameters);
 
         fullReset();
 
@@ -554,8 +611,8 @@ function onClickStart(didPlayerOneClick) {
   });
 
   let isPlayerOneFirst;
-  if (matchParameters.startType === StartType.ALWAYS_RANDOM
-      || (matchParameters.startType === StartType.FIRST_GAME_RANDOM
+  if (observedMatchParameters.startType === StartType.ALWAYS_RANDOM
+      || (observedMatchParameters.startType === StartType.FIRST_GAME_RANDOM
           && isFirstGame()
        )
   ) {
@@ -590,32 +647,14 @@ function setupMainButtons() {
 
   Array.from(document.getElementsByClassName("double_button")).forEach(function(it) {
     it.onclick = () => onClickDouble(isPlayerOneUIElement(it));
-
-    if (!matchParameters.useCube) {
-      const newClassList = [...it.classList];
-      newClassList.push("default_hidden");
-      it.classList = newClassList.join(" ");
-    }
   })
 
   Array.from(document.getElementsByClassName("roll_button")).forEach(function(it) {
     it.onclick = () => onClickRoll(isPlayerOneUIElement(it));
-
-    if (!matchParameters.useDice) {
-      const newClassList = [...it.classList];
-      newClassList.push("default_hidden");
-      it.classList = newClassList.join(" ");
-    }
   })
 
   Array.from(document.getElementsByClassName("done_button")).forEach(function(it) {
     it.onclick = () => onClickDone(isPlayerOneUIElement(it));
-
-    if (!matchParameters.useDice) {
-      const newClassList = [...it.classList];
-      newClassList.splice(newClassList.findIndex((ele) => ele === "default_hidden", 1));
-      it.classList = newClassList.join(" ");
-    }
   })
 }
 
@@ -666,12 +705,12 @@ function setupTimerForPlayer(isPlayerOne) {
     observedGameState.playerOneTimeoutId = timeoutId;
     clearTimeout(gameState.playerTwoTimeoutId);
     observedGameState.playerTwoTimeoutId = null;
-    observedGameState.playerTwoReserveTimeRemainingMs = matchParameters.reserveTimeMs;
+    observedGameState.playerTwoReserveTimeRemainingMs = observedMatchParameters.reserveTimeMs;
   } else {
     observedGameState.playerTwoTimeoutId = timeoutId;
     clearTimeout(gameState.playerOneTimeoutId);
     observedGameState.playerOneTimeoutId = null;
-    observedGameState.playerOneReserveTimeRemainingMs = matchParameters.reserveTimeMs;
+    observedGameState.playerOneReserveTimeRemainingMs = observedMatchParameters.reserveTimeMs;
   }
 }
 
@@ -687,10 +726,10 @@ function handlePlayerWin(didPlayerOneWin, multiplier=1, forceGameWin=false) {
   if (didPlayerOneWin) {
     observedGameState.playerOneGames += 1;
     observedGameState.playerOneScore += score;
-    if (forceGameWin || gameState.playerOneScore >= matchParameters.scoreLimit) {
+    if (forceGameWin || gameState.playerOneScore >= observedMatchParameters.scoreLimit) {
       showAlert(
-        `${matchParameters.playerOneName} wins`,
-        `${matchParameters.playerOneName} won the game to ${matchParameters.scoreLimit}`,
+        `${observedMatchParameters.playerOneName} wins`,
+        `${observedMatchParameters.playerOneName} won the game to ${observedMatchParameters.scoreLimit}`,
         true,
         () => {fullReset();},
         true,
@@ -702,10 +741,10 @@ function handlePlayerWin(didPlayerOneWin, multiplier=1, forceGameWin=false) {
   } else {
     observedGameState.playerTwoGames += 1;
     observedGameState.playerTwoScore += score;
-    if (forceGameWin || gameState.playerTwoScore >= matchParameters.scoreLimit) {
+    if (forceGameWin || gameState.playerTwoScore >= observedMatchParameters.scoreLimit) {
       showAlert(
-        `${matchParameters.playerTwoName} wins`,
-        `${matchParameters.playerTwoName} won the game to ${matchParameters.scoreLimit}`,
+        `${observedMatchParameters.playerTwoName} wins`,
+        `${observedMatchParameters.playerTwoName} won the game to ${observedMatchParameters.scoreLimit}`,
         false,
         () => {fullReset();},
         true,
@@ -728,9 +767,9 @@ function handlePlayerWin(didPlayerOneWin, multiplier=1, forceGameWin=false) {
   observedGameState.playerOneTimeoutId = null;
 
   document.getElementById("player_two_reserve_time").innerText =
-    formatReserveTime(matchParameters.reserveTimeMs);
+    formatReserveTime(observedMatchParameters.reserveTimeMs);
   document.getElementById("player_one_reserve_time").innerText =
-    formatReserveTime(matchParameters.reserveTimeMs);
+    formatReserveTime(observedMatchParameters.reserveTimeMs);
 
   Array.from(document.getElementsByClassName("main_ui")).forEach(function(it) {
     it.style.display = "none";
@@ -755,7 +794,6 @@ function fullReset() {
 }
 
 function resetUI() {
-  setupUIBasedOnMatchParameters();
 
   Array.from(document.getElementsByClassName("main_ui")).forEach(function(it) {
     it.style.display = "none";
@@ -774,9 +812,8 @@ function resetUI() {
 document.addEventListener("DOMContentLoaded", () => {
   const savedMatchParameters = loadStateFromLocalStorage(MATCH_PARAMETERS_KEY)
   for (const property in savedMatchParameters) {
-    matchParameters[property] = savedMatchParameters[property];
+    observedMatchParameters[property] = savedMatchParameters[property];
   }
-  setupUIBasedOnMatchParameters();
 
   resetGameState();
   const savedGameState = loadStateFromLocalStorage(GAME_STATE_KEY)
