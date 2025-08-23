@@ -114,6 +114,19 @@ const handleMatchParametersChange = {
 
 const observedMatchParameters = new Proxy(matchParameters, handleMatchParametersChange);
 
+function resetMatchParameters() {
+  observedMatchParameters.playerOneName= "Player One";
+  observedMatchParameters.playerTwoName= "Player Two";
+
+  observedMatchParameters.useCube= true;
+  observedMatchParameters.useDice= true;
+  observedMatchParameters.startType= StartType.ALWAYS_RANDOM;
+
+  observedMatchParameters.totalGameTimeMs= TEN_MINUTES_IN_MS;
+  observedMatchParameters.reserveTimeMs= TEN_SECONDS_IN_MS;
+  observedMatchParameters.scoreLimit= 7;
+}
+
 const gameState = {
   /**
   * This isn't the source of truth for this information, but a place to recover
@@ -810,6 +823,7 @@ function resetUI() {
 }
 
 document.addEventListener("DOMContentLoaded", () => {
+  resetMatchParameters();
   const savedMatchParameters = loadStateFromLocalStorage(MATCH_PARAMETERS_KEY)
   for (const property in savedMatchParameters) {
     observedMatchParameters[property] = savedMatchParameters[property];
