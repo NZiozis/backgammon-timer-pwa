@@ -6,7 +6,7 @@
 
 ## Run for local development
 ~bash
-  make
+  make run
 ~
 
 ## Deploy
@@ -42,13 +42,15 @@ THESE CAN BE THE SAME DIALOG. JUST NEED TO CHANGE THE CONTENT
 - [X] Buy me a coffee
 - [X] Do an observe for match parameters changing the UI too.
   - DO NOT USE FOR BINDING ON CLICK
+- [ ] Save gameState at intervals so accidental refresh doesn't lose data
 - [ ] Style pass
     - [ ] Improve the PWA app icon
-- [ ] Save gameState at intervals so accidental refresh doesn't lose data
+    - [ ] Make the UI look better in general
 
 ## TODO Later
 - [ ] Some sort of undo
 - [ ] Work for larger/landscape screens
+- [ ] Different penalties for running out the clock
 
 ## NOTES
 - The default assumes that the app is being viewed in portrait mode
