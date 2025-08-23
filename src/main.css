@@ -385,6 +385,11 @@ body {
   font-size: 2.5em;
 }
 
+.player_infinity {
+  font-size: var(--text-size-big);
+  transform: rotate(90deg);
+}
+
 .default_hidden {
   display: none;
 }

@@ -32,6 +32,7 @@ const matchParameters = {
 
   useCube: true,
   useDice: true,
+  useTimer: true,
   startType: StartType.ALWAYS_RANDOM,
 
   totalGameTimeMs: TEN_MINUTES_IN_MS,
@@ -101,6 +102,34 @@ const handleMatchParametersChange = {
           it.classList = newClassList.join(" ");
         });
       }
+    } else if (property === "useTimer") {
+      const timerContainers = Array.from(document.getElementsByClassName("player_time_container"));
+      const infinityContainers = Array.from(document.getElementsByClassName("player_infinity"));
+      if (value) {
+        infinityContainers.forEach(function(it) {
+          const newClassList = [...it.classList];
+          if (!newClassList.includes("default_hidden")) {
+            newClassList.push("default_hidden");
+            it.classList = newClassList.join(" ");
+          }
+        });
+        timerContainers.forEach(function(it) {
+          const newClassList = [...it.classList].filter(item => item !== "default_hidden");
+          it.classList = newClassList.join(" ");
+        });
+      } else {
+        timerContainers.forEach(function(it) {
+          const newClassList = [...it.classList];
+          if (!newClassList.includes("default_hidden")) {
+            newClassList.push("default_hidden");
+            it.classList = newClassList.join(" ");
+          }
+        });
+        infinityContainers.forEach(function(it) {
+          const newClassList = [...it.classList].filter(item => item !== "default_hidden");
+          it.classList = newClassList.join(" ");
+        });
+      }
     } else if (property === "startType") {
       // NOTHING TO BE DONE. JUST ACCOUNTED FOR
     } else {
@@ -120,6 +149,7 @@ function resetMatchParameters() {
 
   observedMatchParameters.useCube= true;
   observedMatchParameters.useDice= true;
+  observedMatchParameters.useTimer = true;
   observedMatchParameters.startType= StartType.ALWAYS_RANDOM;
 
   observedMatchParameters.totalGameTimeMs= TEN_MINUTES_IN_MS;
@@ -501,6 +531,7 @@ function setupSettingsDialog() {
   document.getElementById(observedMatchParameters.startType).selected = true;
   document.getElementById("useCube").checked = observedMatchParameters["useCube"]
   document.getElementById("useDice").checked = observedMatchParameters["useDice"]
+  document.getElementById("useTimer").checked = observedMatchParameters["useTimer"]
   document.getElementById("scoreLimit").value = observedMatchParameters["scoreLimit"]
   document.getElementById("playerOneName").value = observedMatchParameters["playerOneName"]
   document.getElementById("playerTwoName").value = observedMatchParameters["playerTwoName"]
@@ -675,6 +706,10 @@ function setupTimerForPlayer(isPlayerOne) {
   /** Starts the timer for the specified player
     *
     */
+  if (!observedMatchParameters.useTimer) {
+    return;
+  }
+
   let expected;
 
   function tick() {
