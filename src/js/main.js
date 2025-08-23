@@ -26,6 +26,23 @@ const StartType = {
   PLAYER_THAT_CLICKS: "PLAYER_THAT_CLICKS",
 }
 
+function setDefaultHide(elements, shouldHide) {
+  if (shouldHide) {
+    elements.forEach(function(it) {
+      const newClassList = [...it.classList];
+      if (!newClassList.includes("default_hidden")) {
+        newClassList.push("default_hidden");
+        it.classList = newClassList.join(" ");
+      }
+    });
+  } else {
+    elements.forEach(function(it) {
+      const newClassList = [...it.classList].filter(item => item !== "default_hidden");
+      it.classList = newClassList.join(" ");
+    });
+  }
+}
+
 const matchParameters = {
   playerOneName: "Player One",
   playerTwoName: "Player Two",
@@ -59,18 +76,14 @@ const handleMatchParametersChange = {
       document.getElementById("sidebar_game_info").innerText = `Game to ${value}`;
     } else if (property === "useCube") {
       const doubleButtons = Array.from(document.getElementsByClassName("double_button"));
+      const midline = document.getElementById("midline");
 
       if (value) {
-        doubleButtons.forEach(function(it) {
-          const newClassList = [...it.classList].filter(item => item !== "default_hidden");
-          it.classList = newClassList.join(" ");
-        });
+        setDefaultHide([midline], false);
+        setDefaultHide(doubleButtons, false);
       } else {
-        doubleButtons.forEach(function(it) {
-          const newClassList = [...it.classList];
-          newClassList.push("default_hidden");
-          it.classList = newClassList.join(" ");
-        });
+        setDefaultHide([midline], true);
+        setDefaultHide(doubleButtons, true);
       }
     } else if (property === "useDice") {
       const rollButtons = Array.from(document.getElementsByClassName("roll_button"));
@@ -78,57 +91,21 @@ const handleMatchParametersChange = {
       const doneRollButtons = Array.from(document.getElementsByClassName("done_roll_ui"));
 
       if (value) {
-        [...rollButtons, ...doneRollButtons].forEach(function(it) {
-          const newClassList = [...it.classList].filter(item => item !== "default_hidden");
-          it.classList = newClassList.join(" ");
-        });
-        doneMainButtons.forEach(function(it) {
-          const newClassList = [...it.classList];
-          if (!newClassList.includes("default_hidden")) {
-            newClassList.push("default_hidden");
-            it.classList = newClassList.join(" ");
-          }
-        });
+        setDefaultHide([...rollButtons, ...doneRollButtons], false);
+        setDefaultHide(doneMainButtons, true);
       } else {
-        [...rollButtons, ...doneRollButtons].forEach(function(it) {
-          const newClassList = [...it.classList];
-          if (!newClassList.includes("default_hidden")) {
-            newClassList.push("default_hidden");
-            it.classList = newClassList.join(" ");
-          }
-        });
-        doneMainButtons.forEach(function(it) {
-          const newClassList = [...it.classList].filter(item => item !== "default_hidden");
-          it.classList = newClassList.join(" ");
-        });
+        setDefaultHide([...rollButtons, ...doneRollButtons], true);
+        setDefaultHide(doneMainButtons, false);
       }
     } else if (property === "useTimer") {
       const timerContainers = Array.from(document.getElementsByClassName("player_time_container"));
       const infinityContainers = Array.from(document.getElementsByClassName("player_infinity"));
       if (value) {
-        infinityContainers.forEach(function(it) {
-          const newClassList = [...it.classList];
-          if (!newClassList.includes("default_hidden")) {
-            newClassList.push("default_hidden");
-            it.classList = newClassList.join(" ");
-          }
-        });
-        timerContainers.forEach(function(it) {
-          const newClassList = [...it.classList].filter(item => item !== "default_hidden");
-          it.classList = newClassList.join(" ");
-        });
+        setDefaultHide(infinityContainers, true);
+        setDefaultHide(timerContainers, false);
       } else {
-        timerContainers.forEach(function(it) {
-          const newClassList = [...it.classList];
-          if (!newClassList.includes("default_hidden")) {
-            newClassList.push("default_hidden");
-            it.classList = newClassList.join(" ");
-          }
-        });
-        infinityContainers.forEach(function(it) {
-          const newClassList = [...it.classList].filter(item => item !== "default_hidden");
-          it.classList = newClassList.join(" ");
-        });
+        setDefaultHide(infinityContainers, false);
+        setDefaultHide(timerContainers, true);
       }
     } else if (property === "startType") {
       // NOTHING TO BE DONE. JUST ACCOUNTED FOR
