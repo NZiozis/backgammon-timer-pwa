@@ -42,10 +42,12 @@ THESE CAN BE THE SAME DIALOG. JUST NEED TO CHANGE THE CONTENT
 - [X] Buy me a coffee
 - [X] Do an observe for match parameters changing the UI too.
   - DO NOT USE FOR BINDING ON CLICK
-- [ ] Save gameState at intervals so accidental refresh doesn't lose data
-- [ ] Style pass
+- [-] Style pass
+    - [X] Make the UI look better in general
     - [ ] Improve the PWA app icon
-    - [ ] Make the UI look better in general
+    - [ ] Improve PWA install banner
+- [ ] Add button to install PWA separate from banner
+- [ ] Save gameState at intervals so accidental refresh doesn't lose data
 
 ## TODO Later
 - [ ] Some sort of undo
