@@ -231,10 +231,30 @@ const handleGameStateChange = {
       doublingCube.innerText = value === 1 ? "64" : value;
     } else if (property === "playerOneScore") {
       document.getElementById("player_one_score").innerText = value;
+      if (value >= observedMatchParameters.scoreLimit) {
+        showAlert(
+          `${observedMatchParameters.playerOneName} wins`,
+          `${observedMatchParameters.playerOneName} won the game to ${observedMatchParameters.scoreLimit}`,
+          true,
+          () => {fullReset();},
+          true,
+          undefined,
+        )
+      }
     } else if (property === "playerOneGames") {
       document.getElementById("player_one_games").innerText = formatGamesValue(value);
     } else if (property === "playerTwoScore") {
       document.getElementById("player_two_score").innerText = value;
+      if (value >= observedMatchParameters.scoreLimit) {
+        showAlert(
+          `${observedMatchParameters.playerTwoName} wins`,
+          `${observedMatchParameters.playerTwoName} won the game to ${observedMatchParameters.scoreLimit}`,
+          false,
+          () => {fullReset();},
+          true,
+          undefined,
+        )
+      }
     } else if (property === "playerTwoGames") {
       document.getElementById("player_two_games").innerText = formatGamesValue(value);
     } else if (property  === "playerOneReserveTimeRemainingMs") {
@@ -403,14 +423,14 @@ function showAlert(title, content, showToPlayerOne, onClickOk, hideClose, onClic
   } else {
     closeButton.style.display = "block";
     closeButton.addEventListener("click", (event) => {
-      onClickClose();
       alertDialog.close();
+      onClickClose();
     }, {signal});
   }
 
   document.getElementById("ok_alert").addEventListener("click", (event) => {
-    onClickOk();
     alertDialog.close();
+    onClickOk();
   }, {signal});
 
   alertDialog.addEventListener("close", () => {
@@ -553,6 +573,8 @@ function setupSettingsDialog() {
               newTotalGameTimeSeconds += (+element.value);
             } else if (element.name === "formReserveTimeSeconds") {
               observedMatchParameters.reserveTimeMs = (+element.value) * 1000;
+            } else if (element.name === "scoreLimit") {
+              observedMatchParameters["scoreLimit"] = (+element.value);
             } else {
               observedMatchParameters[element.name] = element.value;
             }
@@ -751,31 +773,15 @@ function handlePlayerWin(didPlayerOneWin, multiplier=1, forceGameWin=false) {
   if (didPlayerOneWin) {
     observedGameState.playerOneGames += 1;
     observedGameState.playerOneScore += score;
-    if (forceGameWin || gameState.playerOneScore >= observedMatchParameters.scoreLimit) {
-      showAlert(
-        `${observedMatchParameters.playerOneName} wins`,
-        `${observedMatchParameters.playerOneName} won the game to ${observedMatchParameters.scoreLimit}`,
-        true,
-        () => {fullReset();},
-        true,
-        undefined,
-      )
-
+    if (forceGameWin) {
+      observedGameState.playerOneScore += observedMatchParameters.scoreLimit;
       return;
     }
   } else {
     observedGameState.playerTwoGames += 1;
     observedGameState.playerTwoScore += score;
-    if (forceGameWin || gameState.playerTwoScore >= observedMatchParameters.scoreLimit) {
-      showAlert(
-        `${observedMatchParameters.playerTwoName} wins`,
-        `${observedMatchParameters.playerTwoName} won the game to ${observedMatchParameters.scoreLimit}`,
-        false,
-        () => {fullReset();},
-        true,
-        undefined,
-      )
-
+    if (forceGameWin) {
+      observedGameState.playerTwoScore += observedMatchParameters.scoreLimit;
       return;
     }
   }
