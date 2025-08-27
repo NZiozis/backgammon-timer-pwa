@@ -56,12 +56,13 @@ body {
   }
 
   .concede_content {
-    flex-direction: row;
-    flex-wrap: wrap;
-    gap: 10%;
-    padding: 30px;
-    align-items: center;
-    justify-content: center;
+    display: grid;
+    min-width: 0;
+    min-height: 0;
+    grid-template-columns: repeat(2, 1fr);
+    grid-template-rows: repeat(2, 1fr);
+    gap: 35px;
+    margin: 2%;
   }
 
   .buttons_row {
@@ -402,8 +403,7 @@ body {
   border-radius: 15px;
 
   min-height: 60px;
-  height: 40%;
-  aspect-ratio: 3/2;
+  height: 100%;
 }
 .forfeit_game_button {
   background-color: var(--color-primary);
@@ -411,8 +411,7 @@ body {
   border-radius: 15px;
 
   min-height: 60px;
-  height: 40%;
-  aspect-ratio: 3/2;
+  height: 100%;
 }
 
 .cube {
