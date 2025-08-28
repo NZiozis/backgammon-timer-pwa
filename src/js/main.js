@@ -774,14 +774,14 @@ function handlePlayerWin(didPlayerOneWin, multiplier=1, forceGameWin=false) {
     observedGameState.playerOneGames += 1;
     observedGameState.playerOneScore += score;
     if (forceGameWin) {
-      observedGameState.playerOneScore += observedMatchParameters.scoreLimit;
+      observedGameState.playerOneScore += (+observedMatchParameters.scoreLimit);
       return;
     }
   } else {
     observedGameState.playerTwoGames += 1;
     observedGameState.playerTwoScore += score;
     if (forceGameWin) {
-      observedGameState.playerTwoScore += observedMatchParameters.scoreLimit;
+      observedGameState.playerTwoScore += (+observedMatchParameters.scoreLimit);
       return;
     }
   }
