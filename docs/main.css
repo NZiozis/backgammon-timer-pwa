@@ -103,6 +103,7 @@ body {
   align-items: center;
   justify-content: space-between;
   flex-grow: 1;
+  background-color: var(--color-dice);
 }
 
 .install_banner_content {
