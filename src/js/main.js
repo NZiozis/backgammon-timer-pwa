@@ -311,10 +311,6 @@ function pauseGame() {
 
 function resumeGame() {
   observedGameState.forceStopTimer = false;
-  console.assert(gameState.currentPlayerTurn !== PlayerTurn.NEUTRAL,
-    "Trying to resume game without valid player on turn");
-  setupTimerForPlayer(gameState.currentPlayerTurn === PlayerTurn.PLAYER_ONE);
-
   Array.from(document.getElementsByClassName("play_button")).forEach(function(it) {
     it.style.display = "none";
   })
@@ -323,6 +319,10 @@ function resumeGame() {
   })
 
   document.getElementById("unclickable_overlay").style.display = "none";
+
+  if (gameState.currentPlayerTurn !== PlayerTurn.NEUTRAL) {
+    setupTimerForPlayer(gameState.currentPlayerTurn === PlayerTurn.PLAYER_ONE);
+  }
 }
 
 function loadStateFromLocalStorage(key) {
