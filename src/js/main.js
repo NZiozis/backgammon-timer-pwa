@@ -191,21 +191,38 @@ const handleGameStateChange = {
     } else if (property === "cubeOwnership") {
       const midline = document.getElementById("midline");
       const doublingCube = document.getElementById("doubling_cube");
-
-      switch (value) {
-        case CubeOwnership.NEUTRAL:
-          doublingCube.style.transform = "rotate(90deg)";
-          midline.style.justifyContent = "center";
-          break;
-        case CubeOwnership.PLAYER_ONE:
-          doublingCube.style.transform = "rotate(180deg)";
-          midline.style.justifyContent = "start";
-          break;
-        case CubeOwnership.PLAYER_TWO:
-          doublingCube.style.transform = "rotate(0deg)";
-          midline.style.justifyContent = "end";
-          break;
+      if (window.matchMedia("(orientation: landscape)").matches) {
+        switch (value) {
+          case CubeOwnership.NEUTRAL:
+            doublingCube.style.transform = "rotate(0deg)";
+            midline.style.alignItems = "center";
+            break;
+          case CubeOwnership.PLAYER_ONE:
+            doublingCube.style.transform = "rotate(90deg)";
+            midline.style.alignItems = "start";
+            break;
+          case CubeOwnership.PLAYER_TWO:
+            doublingCube.style.transform = "rotate(-90deg)";
+            midline.style.alignItems = "end";
+            break;
+        }
+      } else {
+        switch (value) {
+          case CubeOwnership.NEUTRAL:
+            doublingCube.style.transform = "rotate(90deg)";
+            midline.style.justifyContent = "center";
+            break;
+          case CubeOwnership.PLAYER_ONE:
+            doublingCube.style.transform = "rotate(180deg)";
+            midline.style.justifyContent = "start";
+            break;
+          case CubeOwnership.PLAYER_TWO:
+            doublingCube.style.transform = "rotate(0deg)";
+            midline.style.justifyContent = "end";
+            break;
+        }
       }
+
       if (value !== CubeOwnership.NEUTRAL) {
         switch (target.currentPlayerTurn) {
           case PlayerTurn.PLAYER_ONE:

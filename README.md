@@ -42,16 +42,17 @@ THESE CAN BE THE SAME DIALOG. JUST NEED TO CHANGE THE CONTENT
 - [X] Buy me a coffee
 - [X] Do an observe for match parameters changing the UI too.
   - DO NOT USE FOR BINDING ON CLICK
-- [-] Style pass
+- [X] Style pass
     - [X] Make the UI look better in general
-    - [ ] Improve the PWA app icon
-    - [ ] Improve PWA install banner
-- [ ] Add button to install PWA separate from banner
-- [ ] Save gameState at intervals so accidental refresh doesn't lose data
+    - [X] Improve the PWA app icon
+    - [X] Improve PWA install banner
+- [X] Work for larger/landscape screens
+- [ ] Fix: Screen resizes when switching between actions
 
 ## TODO Later
+- [ ] Save gameState at intervals so accidental refresh doesn't lose data
+- [ ] Add button to install PWA separate from banner
 - [ ] Some sort of undo
-- [ ] Work for larger/landscape screens
 - [ ] Different penalties for running out the clock
 
 ## NOTES
