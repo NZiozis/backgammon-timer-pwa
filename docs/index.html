@@ -184,14 +184,20 @@
         </div>
         <div class="sidebar_middle">
           <div id="sidebar_game_info" class="sidebar_game_info">
-            E
+            <span>E</span>
           </div>
           <div class="sidebar_score">
-            <span id="player_one_score">0</span>
-            <span id="player_one_games">(0)</span>
-            <span>.</span>
-            <span id="player_two_score">0</span>
-            <span id="player_two_games">(0)</span>
+            <div class="sidebar_score_container">
+              <span id="player_one_score">0</span>
+              <span id="player_one_games">(0)</span>
+            </div>
+            <div class="sidebar_score_separator">
+              <span>.</span>
+            </div>
+            <div class="sidebar_score_container">
+              <span id="player_two_score">0</span>
+              <span id="player_two_games">(0)</span>
+            </div>
           </div>
         </div>
         <div id="player_two_sidebar">
@@ -229,7 +235,7 @@
         </div>
         <div id="midline" class="midline">
           <!-- If the doubling cube is enabled, this is where it exists -->
-          <div id="doubling_cube" class="cube">
+          <div id="doubling_cube" class="cube doubling_cube">
             <span>64</span>
           </div>
         </div>

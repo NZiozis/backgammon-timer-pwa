@@ -158,6 +158,10 @@ body {
   flex-direction: row-reverse;
 	min-height: 100%;
 	min-width: 100%;
+
+  @media all and (orientation:landscape) {
+    flex-direction: column;
+  }
 }
 
 .players_container {
@@ -165,6 +169,10 @@ body {
 	display: flex;
   flex: 20 1 auto;
   flex-direction: column;
+
+  @media all and (orientation:landscape) {
+    flex-direction: row;
+  }
 }
 
 .sidebar {
@@ -180,6 +188,20 @@ body {
 
   span {
     writing-mode: vertical-lr;
+
+    @media all and (orientation:landscape) {
+      writing-mode: unset;
+    }
+  }
+
+  @media all and (orientation:landscape) {
+    flex-direction: row;
+  }
+}
+
+.doubling_cube {
+  @media all and (orientation:landscape) {
+    height: 15%;
   }
 }
 
@@ -188,17 +210,44 @@ body {
   flex-direction: row-reverse;
   align-items: center;
   justify-content: center;
+
+  @media all and (orientation:landscape) {
+    flex-direction: column;
+  }
 }
+
 .sidebar_game_info {
   font-size: var(--text-size-small);
   writing-mode: vertical-lr;
+
+  @media all and (orientation:landscape) {
+    writing-mode: unset;
+  }
 }
+
 .sidebar_score {
   display: inline-flex;
   flex-direction: column;
   align-items: center;
+  gap: 5px;
 
   font-size: var(--text-size-big);
+
+  @media all and (orientation:landscape) {
+    flex-direction: row;
+  }
+}
+
+.sidebar_score_container {
+  display: flex;
+  flex-direction: column;
+
+  @media all and (orientation:landscape) {
+    flex-direction: row;
+  }
+}
+.sidebar_score_separator {
+  display: flex;
 }
 
 .player_sidebar {
@@ -207,6 +256,10 @@ body {
   align-items: center;
   justify-content: center;
   padding: 0 0.4rem;
+
+  @media all and (orientation:landscape) {
+    flex-direction: column;
+  }
 }
 
 .player_name {
@@ -221,6 +274,10 @@ body {
   display: flex;
   flex-direction: column;
   align-items: center;
+
+  @media all and (orientation:landscape) {
+    flex-direction: row;
+  }
 }
 
 #player_one {
@@ -230,6 +287,7 @@ body {
 .action_ui {
   display: flex;
   flex: 1 1 auto;
+  padding: 3%;
 }
 .player_container {
   display: flex;
@@ -243,6 +301,7 @@ body {
   display: flex;
   flex: 1 1 0;
   justify-content: center;
+  align-items: center;
   padding: 1% 2%;
 
   background-color: var(--color-secondary);
@@ -254,10 +313,20 @@ body {
   flex-direction: column;
   /* This is the filter equivalent of color secondary contrast */
   filter: brightness(0) saturate(100%) invert(89%) sepia(24%) saturate(275%) hue-rotate(332deg) brightness(92%) contrast(98%);
+
+  @media all and (orientation:landscape) {
+    flex-direction: row;
+  }
 }
+
 
 #player_one_sidebar_buttons {
   transform: rotate(180deg);
+
+  @media all and (orientation:landscape) {
+    transform: rotate(0deg);
+    flex-direction: row-reverse;
+  }
 }
 .sidebar_button {
   border-radius: 100px;
@@ -287,6 +356,10 @@ body {
   flex: 1 1 auto;
   align-items: center;
   justify-content: space-evenly;
+
+  @media all and (orientation:landscape) {
+    flex-direction: row;
+  }
 }
 .double_action_ui {
   display: none;
@@ -295,6 +368,14 @@ body {
   flex: 1 1 auto;
   align-items: center;
   justify-content: space-evenly;
+
+  @media all and (orientation:landscape) {
+    flex-direction: row;
+
+    #offered_cube {
+      transform: rotate(-90deg);
+    }
+  }
 }
 .start_ui {
   display: flex;
@@ -311,12 +392,25 @@ body {
   flex: 1 1 auto;
   align-items: center;
   justify-content: space-evenly;
+
+  @media all and (orientation:landscape) {
+    flex-direction: row;
+  }
 }
 
 .display_rolled_dice {
   display: flex;
   width: 100%;
   justify-content: space-evenly;
+
+  @media all and (orientation:landscape) {
+    flex-direction: column;
+    gap: 10px;
+    max-width: 200px;
+    span {
+      transform: rotate(-90deg);
+    }
+  }
 }
 
 .done_button {
@@ -344,6 +438,10 @@ body {
       inset -2px -2px 3px rgba(211, 211, 211, 0.4),
       inset 2px 2px 3px rgba(0, 0, 0, 0.6);
   }
+
+  @media all and (orientation:landscape) {
+    transform: rotate(-90deg);
+  }
 }
 
 .roll_button {
@@ -359,14 +457,29 @@ body {
   font-size: var(--text-size-extra-big);
 }
 
-.double_actions_button_container{
-  width: 100%;
+.double_actions_button_container {
 
   display: flex;
   justify-content: space-evenly;
+
+  @media all and (orientation:portrait) {
+    width: 100%;
+  }
+
+  @media all and (orientation:landscape) {
+    flex-direction: column;
+    height: 100%;
+  }
 }
 .double_action_button {
-  width: 33%
+  @media all and (orientation:portrait) {
+    width: 33%;
+  }
+
+  @media all and (orientation:landscape) {
+    height: 20%;
+  }
+
 }
 .double_take_button {
 }
@@ -437,8 +550,8 @@ body {
 
   border-radius: 10px;
   border: 2px solid black;
+  min-width: 35%;
   aspect-ratio: 1/1;
-  min-width: 20%;
 
   font-size: 2.5em;
 
@@ -448,6 +561,10 @@ body {
 .player_infinity {
   font-size: var(--text-size-big);
   transform: rotate(90deg);
+
+  @media all and (orientation:landscape) {
+    transform: rotate(0deg);
+  }
 }
 
 .default_hidden {
