@@ -21,6 +21,18 @@ body {
   --text-size-extra-big: clamp(3rem, 8vw, 8rem);
   --text-size-small: clamp(0.8rem, 2.28vw, 2.28rem);
 
+  --sidebar-width-portrait: 15%;
+  --players-container-width-portrait: 85%;
+
+  --sidebar-height-landscape: 15%;
+  --players-container-height-landscape: 85%;
+
+  --player-container-height-portrait: 42%;
+  --midline-height-portrait: 16%;
+
+  --player-container-width-landscape: 42%;
+  --midline-width-landscape: 16%;
+
 	height: 100%;
 	margin: 0;
   font-weight: 600;
@@ -170,7 +182,12 @@ body {
   flex: 20 1 auto;
   flex-direction: column;
 
+  @media all and (orientation:portrait) {
+    width: var(--players-container-width-portrait);
+  }
+
   @media all and (orientation:landscape) {
+    height: var(--players-container-height-landscape);
     flex-direction: row;
   }
 }
@@ -179,12 +196,19 @@ body {
 	display: flex;
 	align-content: center;
 	justify-content: space-between;
-  flex: 1 1 auto;
   flex-direction: column;
   padding: 1%;
 
-  min-height: 100%;
   background: var(--color-secondary);
+
+  @media all and (orientation:portrait) {
+    min-height: 100%;
+    width: var(--sidebar-width-portrait);
+  }
+
+  @media all and (orientation:landscape) {
+    height: var(--sidebar-height-landscape);
+  }
 
   span {
     writing-mode: vertical-lr;
@@ -200,8 +224,11 @@ body {
 }
 
 .doubling_cube {
+  @media all and (orientation:portrait) {
+    height: 100%;
+  }
   @media all and (orientation:landscape) {
-    height: 15%;
+    width: 100%;
   }
 }
 
@@ -291,20 +318,34 @@ body {
 }
 .player_container {
   display: flex;
-  flex: 4 1 0;
 
   border-radius: 10px;
   border: 2px solid var(--color-primary-contrast);
   background-color: var(--color-primary);
+
+  @media all and (orientation:landscape) {
+    width: var(--player-container-width-landscape);
+  }
+
+  @media all and (orientation:portrait) {
+    height: var(--player-container-height-portrait);
+  }
 }
 .midline {
   display: flex;
-  flex: 1 1 0;
   justify-content: center;
   align-items: center;
   padding: 1% 2%;
 
   background-color: var(--color-secondary);
+
+  @media all and (orientation:landscape) {
+    width: var(--midline-width-landscape);
+  }
+
+  @media all and (orientation:portrait) {
+    height: var(--midline-height-portrait);
+  }
 }
 
 .sidebar_buttons {
