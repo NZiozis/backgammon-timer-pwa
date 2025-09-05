@@ -47,7 +47,7 @@ THESE CAN BE THE SAME DIALOG. JUST NEED TO CHANGE THE CONTENT
     - [X] Improve the PWA app icon
     - [X] Improve PWA install banner
 - [X] Work for larger/landscape screens
-- [ ] Fix: Screen resizes when switching between actions
+- [X] Fix: Screen resizes when switching between actions
 
 ## TODO Later
 - [ ] Save gameState at intervals so accidental refresh doesn't lose data
