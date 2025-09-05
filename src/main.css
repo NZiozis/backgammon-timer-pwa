@@ -226,6 +226,7 @@ body {
 .doubling_cube {
   @media all and (orientation:portrait) {
     height: 100%;
+    min-width: unset !important;
   }
   @media all and (orientation:landscape) {
     width: 100%;
