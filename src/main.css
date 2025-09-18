@@ -182,6 +182,7 @@ body {
 	display: flex;
   flex: 20 1 auto;
   flex-direction: column;
+  justify-content: space-between;
 
   @media all and (orientation:portrait) {
     width: var(--players-container-width-portrait);
