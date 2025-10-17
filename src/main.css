@@ -7,7 +7,10 @@ body {
   --color-primary-contrast: #417B5A;
   --color-secondary: #4B3F72;
   --color-secondary-contrast: #D0CEBA;
+
   --color-disabled: light-gray;
+
+  --dialog-background-color: #D0CEBA;
 
   --color-dice: #E9D2C0;
   --color-dice-text: black;
@@ -46,7 +49,7 @@ body {
   width: 80%;
   height: 45%;
 
-  background-color: var(--color-secondary-contrast);
+  background-color: var(--dialog-background-color);
 
   border: transparent;
   border-radius: 25px;

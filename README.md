@@ -48,8 +48,11 @@ THESE CAN BE THE SAME DIALOG. JUST NEED TO CHANGE THE CONTENT
     - [X] Improve PWA install banner
 - [X] Work for larger/landscape screens
 - [X] Fix: Screen resizes when switching between actions
+- [X] Different themes
 
 ## TODO Later
+- [ ] Media share buttons
+- [ ] Setup in progress game
 - [ ] Save gameState at intervals so accidental refresh doesn't lose data
 - [ ] Add button to install PWA separate from banner
 - [ ] Some sort of undo

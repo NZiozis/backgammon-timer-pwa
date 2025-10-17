@@ -25,6 +25,34 @@ const StartType = {
   FIRST_GAME_RANDOM: "FIRST_GAME_RANDOM",
   PLAYER_THAT_CLICKS: "PLAYER_THAT_CLICKS",
 }
+const Theme = {
+  ORIGINAL: "ORIGINAL",
+  RED_GREEN: "RED_GREEN",
+  GALAXY: "GALAXY",
+}
+
+const ThemeToColors = new Map(
+  [
+    [Theme.ORIGINAL, {
+      primary: "#1F2041",
+      primary_c: "#417B5A",
+      secondary: "#4B3F72",
+      secondary_c: "#D0CEBA"
+    }],
+    [Theme.RED_GREEN, {
+      primary: "red",
+      primary_c: "#4f4f4f",
+      secondary: "green",
+      secondary_c: "white"
+    }],
+    [Theme.GALAXY, {
+      primary: "#6492e6",
+      primary_c: "#386ad5",
+      secondary: "#302ea9",
+      secondary_c: "white"
+    }],
+  ]
+);
 
 function setDefaultHide(elements, shouldHide) {
   if (shouldHide) {
@@ -44,6 +72,8 @@ function setDefaultHide(elements, shouldHide) {
 }
 
 const matchParameters = {
+  theme: Theme.ORIGINAL,
+
   playerOneName: "Player One",
   playerTwoName: "Player Two",
 
@@ -62,7 +92,16 @@ const handleMatchParametersChange = {
     const playerOneMainUI = document.querySelector("#player_one #main_ui");
     const playerTwoMainUI = document.querySelector("#player_two #main_ui");
 
-    if (property === "playerOneName") {
+    if (property === "theme") {
+      const colors = ThemeToColors.get(value);
+      const body = document.body;
+
+      body.style.setProperty("--color-primary", colors.primary);
+      body.style.setProperty("--color-primary-contrast", colors.primary_c);
+      body.style.setProperty("--color-secondary", colors.secondary);
+      body.style.setProperty("--color-secondary-contrast", colors.secondary_c);
+
+    } else if (property === "playerOneName") {
       document.getElementById("player_one_name").innerText = value;
     } else if (property === "playerTwoName") {
       document.getElementById("player_two_name").innerText = value;
