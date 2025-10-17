@@ -581,6 +581,7 @@ function setupSettingsDialog() {
   const closeButton = document.getElementById("close_settings");
   const saveButton = document.getElementById("save_settings");
 
+  document.getElementById(observedMatchParameters.theme).selected = true;
   document.getElementById(observedMatchParameters.startType).selected = true;
   document.getElementById("useCube").checked = observedMatchParameters["useCube"]
   document.getElementById("useDice").checked = observedMatchParameters["useDice"]
