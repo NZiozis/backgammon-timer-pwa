@@ -28,7 +28,7 @@ const StartType = {
 const Theme = {
   ORIGINAL: "ORIGINAL",
   RED_GREEN: "RED_GREEN",
-  GALAXY: "GALAXY",
+  BLUE: "BLUE",
 }
 
 const ThemeToColors = new Map(
@@ -45,7 +45,7 @@ const ThemeToColors = new Map(
       secondary: "green",
       secondary_c: "white"
     }],
-    [Theme.GALAXY, {
+    [Theme.BLUE, {
       primary: "#6492e6",
       primary_c: "#386ad5",
       secondary: "#302ea9",
