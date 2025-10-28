@@ -9,10 +9,102 @@ const ONE_SECOND_IN_MS = 1000;
 const TEN_MINUTES_IN_MS = 600000;
 const TEN_SECONDS_IN_MS = 10000;
 
+const ActionType = {
+  START: "START",
+  ROLL: "ROLL",
+  OFFER_DOUBLE: "OFFER_DOUBLE",
+  DROP_DOUBLE: "DROP_DOUBLE",
+  TAKE_DOUBLE: "TAKE_DOUBLE",
+  END_TURN: "END_TURN",
+}
+
+class Queue {
+  constructor() {
+    this.queue = [];
+  }
+
+  enqueue(element) {
+    this.queue.push(element);
+    return element;
+  }
+
+  dequeue() {
+    return this.queue.shift()
+  }
+}
+
+let UNDO_QUEUE = new Queue();
+let REDO_QUEUE = new Queue();
+
+class Action {
+  constructor(type, player_turn) {
+    this.type = type;
+    this.player_turn = player_turn;
+
+    this.player_one_total_time_remaining_ms = gameState.playerOneTotalTimeRemainingMs;
+    this.player_one_reserve_time_remaining_ms = gameState.playerOneReserveTimeRemainingMs;
+
+    this.player_two_total_time_remaining_ms = gameState.playerTwoTotalTimeRemainingMs;
+    this.player_two_reserve_time_remaining_ms = gameState.playerTwoReserveTimeRemainingMs;
+  }
+}
+
+class RollAction extends Action {
+  constructor(player_turn, dice_one, dice_two) {
+    super(ActionType.ROLL, player_turn);
+
+    this.dice_one = dice_one;
+    this.dice_two = dice_two;
+  }
+}
+
+class StartAction extends Action {
+  constructor(player_to_start) {
+    super(ActionType.START, PlayerTurn.NEUTRAL);
+    this.player_to_start = player_to_start;
+  }
+}
+
+class EndTurnAction extends Action {
+  constructor(player_turn) {
+    super(ActionType.END_TURN, player_turn);
+  }
+}
+
+class OfferDoubleAction extends Action {
+  constructor(player_turn) {
+    super(ActionType.OFFER_DOUBLE, player_turn);
+
+    this.current_game_value = gameState.currentGameValue;
+    this.new_game_value = gameState.currentGameValue * 2;
+  }
+}
+
+class DropDoubleAction extends Action {
+  constructor(player_turn) {
+    super(ActionType.DROP_DOUBLE, player_turn);
+
+    this.forfeited_game_value = gameState.currentGameValue;
+  }
+}
+
+class TakeDoubleAction extends Action {
+  constructor(player_turn) {
+    super(ActionType.TAKE_DOUBLE, player_turn);
+
+    this.previous_game_value = gameState.currentGameValue;
+    this.current_game_value = gameState.currentGameValue * 2;
+  }
+}
+
 const PlayerTurn = {
   NEUTRAL: "NEUTRAL",
   PLAYER_ONE: "PLAYER_ONE",
   PLAYER_TWO: "PLAYER_TWO",
+}
+
+function getPlayerTurn(isPlayerOne) {
+  return isPlayerOne ? PlayerTurn.PLAYER_ONE : PlayerTurn.PLAYER_TWO;
 }
 
 const CubeOwnership = {
@@ -20,11 +112,13 @@ const CubeOwnership = {
   PLAYER_ONE: "PLAYER_ONE",
   PLAYER_TWO: "PLAYER_TWO",
 }
+
 const StartType = {
   ALWAYS_RANDOM: "ALWAYS_RANDOM",
   FIRST_GAME_RANDOM: "FIRST_GAME_RANDOM",
   PLAYER_THAT_CLICKS: "PLAYER_THAT_CLICKS",
 }
+
 const Theme = {
   ORIGINAL: "ORIGINAL",
   RED_GREEN: "RED_GREEN",
@@ -656,11 +750,15 @@ function setupSettingsDialog() {
 }
 
 function onClickDone(isPlayerOne) {
+  UNDO_QUEUE.enqueue(new EndTurnAction(getPlayerTurn(isPlayerOne)));
+
   togglePlayerTurn();
   setupTimerForPlayer(!isPlayerOne);
 }
 
 function onClickDouble(isPlayerOne) {
+  UNDO_QUEUE.enqueue(new OfferDoubleAction(getPlayerTurn(isPlayerOne)));
+
   const offeringPlayerUI = isPlayerOne ? document.getElementById("player_one") :
       document.getElementById("player_two");
   const decidingPlayerUI = isPlayerOne ? document.getElementById("player_two") :
@@ -676,6 +774,8 @@ function onClickDouble(isPlayerOne) {
 }
 
 function onClickDoubleTake(isPlayerOne) {
+  UNDO_QUEUE.enqueue(new TakeDoubleAction(getPlayerTurn(isPlayerOne)));
+
   observedGameState.currentGameValue = gameState.currentGameValue * 2;
   observedGameState.cubeOwnership = isPlayerOne ? CubeOwnership.PLAYER_ONE : CubeOwnership.PLAYER_TWO;
 
@@ -684,19 +784,27 @@ function onClickDoubleTake(isPlayerOne) {
 }
 
 function onClickDoubleDrop(isPlayerOne) {
+  UNDO_QUEUE.enqueue(new DropDoubleAction(getPlayerTurn(isPlayerOne)));
+
   handlePlayerWin(!isPlayerOne);
 }
 
 function onClickRoll(isPlayerOne) {
   /** Hide the roll/double, show roll_action_ui **/
+  let dice_one = Math.floor(Math.random() * 6) + 1;
+  let dice_two = Math.floor(Math.random() * 6) + 1;
+
+  UNDO_QUEUE.enqueue(new RollAction(getPlayerTurn(isPlayerOne), dice_one, dice_two));
+
   const playerUI = isPlayerOne ? document.getElementById("player_one") :
      document.getElementById("player_two");
 
   playerUI.querySelector("#main_ui").style.display = "none";
 
   playerUI.querySelector("#roll_action_ui").style.display = "flex";
-  playerUI.querySelector("#dice_one_span").innerText = Math.floor(Math.random() * 6) + 1;
-  playerUI.querySelector("#dice_two_span").innerText = Math.floor(Math.random() * 6) + 1;
+
+  playerUI.querySelector("#dice_one_span").innerText = dice_one;
+  playerUI.querySelector("#dice_two_span").innerText = dice_two;
 }
 
 function onClickStart(didPlayerOneClick) {
@@ -721,7 +829,11 @@ function onClickStart(didPlayerOneClick) {
     isPlayerOneFirst = didPlayerOneClick;
   }
 
-  observedGameState.currentPlayerTurn = isPlayerOneFirst ? PlayerTurn.PLAYER_ONE : PlayerTurn.PLAYER_TWO;
+  let currentPlayerTurn = getPlayerTurn(isPlayerOneFirst);
+
+  UNDO_QUEUE.enqueue(new StartAction(currentPlayerTurn));
+
+  observedGameState.currentPlayerTurn = currentPlayerTurn
   setupTimerForPlayer(isPlayerOneFirst);
 }
 
