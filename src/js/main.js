@@ -29,7 +29,11 @@ class Queue {
   }
 
   dequeue() {
-    return this.queue.shift()
+    return this.queue.shift();
+  }
+
+  front() {
+    return this.queue.at(-1);
   }
 }
 
@@ -37,9 +41,9 @@ let UNDO_QUEUE = new Queue();
 let REDO_QUEUE = new Queue();
 
 class Action {
-  constructor(type, player_turn) {
+  constructor(type) {
     this.type = type;
-    this.player_turn = player_turn;
+    this.player_turn = gameState.currentPlayerTurn;
 
     this.player_one_total_time_remaining_ms = gameState.playerOneTotalTimeRemainingMs;
     this.player_one_reserve_time_remaining_ms = gameState.playerOneReserveTimeRemainingMs;
@@ -50,8 +54,8 @@ class Action {
 }
 
 class RollAction extends Action {
-  constructor(player_turn, dice_one, dice_two) {
-    super(ActionType.ROLL, player_turn);
+  constructor(dice_one, dice_two) {
+    super(ActionType.ROLL);
 
     this.dice_one = dice_one;
     this.dice_two = dice_two;
@@ -60,20 +64,20 @@ class RollAction extends Action {
 
 class StartAction extends Action {
   constructor(player_to_start) {
-    super(ActionType.START, PlayerTurn.NEUTRAL);
+    super(ActionType.START)
     this.player_to_start = player_to_start;
   }
 }
 
 class EndTurnAction extends Action {
-  constructor(player_turn) {
-    super(ActionType.END_TURN, player_turn);
+  constructor() {
+    super(ActionType.END_TURN);
   }
 }
 
 class OfferDoubleAction extends Action {
-  constructor(player_turn) {
-    super(ActionType.OFFER_DOUBLE, player_turn);
+  constructor() {
+    super(ActionType.OFFER_DOUBLE);
 
     this.current_game_value = gameState.currentGameValue;
     this.new_game_value = gameState.currentGameValue * 2;
@@ -81,17 +85,19 @@ class OfferDoubleAction extends Action {
 }
 
 class DropDoubleAction extends Action {
-  constructor(player_turn) {
-    super(ActionType.DROP_DOUBLE, player_turn);
+  constructor(player_dropping) {
+    super(ActionType.DROP_DOUBLE);
 
+    this.player_dropping = player_dropping;
     this.forfeited_game_value = gameState.currentGameValue;
   }
 }
 
 class TakeDoubleAction extends Action {
-  constructor(player_turn) {
-    super(ActionType.TAKE_DOUBLE, player_turn);
+  constructor(player_taking) {
+    super(ActionType.TAKE_DOUBLE);
 
+    this.player_taking = player_taking;
     this.previous_game_value = gameState.currentGameValue;
     this.current_game_value = gameState.currentGameValue * 2;
   }
@@ -750,14 +756,14 @@ function setupSettingsDialog() {
 }
 
 function onClickDone(isPlayerOne) {
-  UNDO_QUEUE.enqueue(new EndTurnAction(getPlayerTurn(isPlayerOne)));
+  UNDO_QUEUE.enqueue(new EndTurnAction());
 
   togglePlayerTurn();
   setupTimerForPlayer(!isPlayerOne);
 }
 
 function onClickDouble(isPlayerOne) {
-  UNDO_QUEUE.enqueue(new OfferDoubleAction(getPlayerTurn(isPlayerOne)));
+  UNDO_QUEUE.enqueue(new OfferDoubleAction());
 
   const offeringPlayerUI = isPlayerOne ? document.getElementById("player_one") :
       document.getElementById("player_two");
@@ -794,7 +800,7 @@ function onClickRoll(isPlayerOne) {
   let dice_one = Math.floor(Math.random() * 6) + 1;
   let dice_two = Math.floor(Math.random() * 6) + 1;
 
-  UNDO_QUEUE.enqueue(new RollAction(getPlayerTurn(isPlayerOne), dice_one, dice_two));
+  UNDO_QUEUE.enqueue(new RollAction(dice_one, dice_two));
 
   const playerUI = isPlayerOne ? document.getElementById("player_one") :
      document.getElementById("player_two");
@@ -829,11 +835,9 @@ function onClickStart(didPlayerOneClick) {
     isPlayerOneFirst = didPlayerOneClick;
   }
 
-  let currentPlayerTurn = getPlayerTurn(isPlayerOneFirst);
+  UNDO_QUEUE.enqueue(new StartAction());
 
-  UNDO_QUEUE.enqueue(new StartAction(currentPlayerTurn));
-
-  observedGameState.currentPlayerTurn = currentPlayerTurn
+  observedGameState.currentPlayerTurn = getPlayerTurn(isPlayerOneFirst);
   setupTimerForPlayer(isPlayerOneFirst);
 }
 
