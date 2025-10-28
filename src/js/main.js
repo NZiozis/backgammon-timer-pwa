@@ -835,9 +835,10 @@ function onClickStart(didPlayerOneClick) {
     isPlayerOneFirst = didPlayerOneClick;
   }
 
-  UNDO_QUEUE.enqueue(new StartAction());
+  let playerToStart = getPlayerTurn(isPlayerOneFirst);
+  UNDO_QUEUE.enqueue(new StartAction(playerToStart));
 
-  observedGameState.currentPlayerTurn = getPlayerTurn(isPlayerOneFirst);
+  observedGameState.currentPlayerTurn = playerToStart;
   setupTimerForPlayer(isPlayerOneFirst);
 }
 
