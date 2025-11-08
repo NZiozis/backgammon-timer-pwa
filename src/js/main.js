@@ -97,6 +97,7 @@ class Action {
     this.currentPlayerTurn = gameState.currentPlayerTurn;
     this.cubeOwnership = gameState.cubeOwnership;
     this.currentGameValue = gameState.currentGameValue;
+    this.isDoubling = gameState.isDoubling;
   }
 }
 
@@ -343,6 +344,8 @@ const gameState = {
   playerTwoReserveTimeRemainingMs: TEN_SECONDS_IN_MS,
   playerTwoTimeoutId: null,
 
+  isDoubling: false, // Toggled when a double is offered. MUST BE TOGGLED BEFORE PLAYER TURN IS CHANGED
+
   forceStopTimer: true, // This makes sure that tick fully stops on a reset. Since the tick is handled by setTimeout, there is a chance that it will run over and ignore a gameState reset if this isn't set. This is toggled to false on game start and is set to true when a function like resetGameState is called
 }
 const handleGameStateChange = {
@@ -358,18 +361,23 @@ const handleGameStateChange = {
     } else if (property === "currentPlayerTurn") {
       const previousWasNeutral = gameState.currentPlayerTurn === PlayerTurn.NEUTRAL;
 
-      if (value === PlayerTurn.PLAYER_ONE) {
-        playerOneMainUI.style.display = "flex";
-        playerTwoMainUI.style.display = "none";
-        if (!previousWasNeutral) {
-          document.querySelector("#player_two #roll_action_ui").style.display = "none";
-        }
-      } else if (value === PlayerTurn.PLAYER_TWO) {
-        playerOneMainUI.style.display = "none";
-        playerTwoMainUI.style.display = "flex";
+      if (gameState.isDoubling) {
+        // TODO SOME UI CHANGES
+        // THE ABOVE TODO IS A CLEANUP STEP SINCE THE UI CHANGES ARE ALREADY HANDLED IN THE ON CLICK METHOD
+      } else {
+        if (value === PlayerTurn.PLAYER_ONE) {
+          playerOneMainUI.style.display = "flex";
+          playerTwoMainUI.style.display = "none";
+          if (!previousWasNeutral) {
+            document.querySelector("#player_two #roll_action_ui").style.display = "none";
+          }
+        } else if (value === PlayerTurn.PLAYER_TWO) {
+          playerOneMainUI.style.display = "none";
+          playerTwoMainUI.style.display = "flex";
 
-        if (!previousWasNeutral) {
-          document.querySelector("#player_one #roll_action_ui").style.display = "none";
+          if (!previousWasNeutral) {
+            document.querySelector("#player_one #roll_action_ui").style.display = "none";
+          }
         }
       }
     } else if (property === "cubeOwnership") {
@@ -471,7 +479,6 @@ const handleGameStateChange = {
       document.getElementById("player_two_total_time").innerText =
         formatTotalTime(value);
     }
-
 
     return Reflect.set(target, property, value);
   }
@@ -819,6 +826,7 @@ function setGenericaGameStateBasedOnAction(action) {
   observedGameState.currentPlayerTurn = action.currentPlayerTurn;
   observedGameState.cubeOwnership = action.cubeOwnership;
   observedGameState.currentGameValue = action.currentGameValue;
+  observedGameState.isDoubling = action.isDoubling;
 }
 
 function onClickUndo() {
@@ -860,18 +868,14 @@ function onClickUndo() {
       break;
     case ActionType.DROP_DOUBLE:
     case ActionType.TAKE_DOUBLE:
-      // NOTE FIX TIMER LOGIC FOR UNPAUSE DUE TO THE CURRENT PLAYER TURN
       elementsToHide.push(playerOneRoll, playerOneMain, playerOneStart, playerTwoRoll, playerTwoMain, playerTwoStart, document.getElementById("doubling_cube"));
 
-      // The player turn does not switch when the double is taken or dropped. It stays
-      // the turn of the player that offered the double. So, the UI needs to be shown
-      // for the opposite player than you might expect
       if (action.playerTurn === PlayerTurn.PLAYER_ONE) {
-        playerTwoDouble.style.display = "flex";
-        elementsToHide.push(playerOneDouble);
-      } else if (action.playerTurn === PlayerTurn.PLAYER_TWO) {
         playerOneDouble.style.display = "flex";
         elementsToHide.push(playerTwoDouble);
+      } else if (action.playerTurn === PlayerTurn.PLAYER_TWO) {
+        playerTwoDouble.style.display = "flex";
+        elementsToHide.push(playerOneDouble);
       }
 
       hideUiElements(elementsToHide);
@@ -908,6 +912,7 @@ function onClickDone(isPlayerOne) {
 }
 
 function onClickDouble(isPlayerOne) {
+  observedGameState.isDoubling = true;
   UNDO_REDO_BUFFER.add_to_history(new OfferDoubleAction());
 
   const offeringPlayerUI = isPlayerOne ? document.getElementById("player_one") :
@@ -921,20 +926,28 @@ function onClickDouble(isPlayerOne) {
   decidingPlayerUI.querySelector("#offered_cube").innerText = gameState.currentGameValue * 2;
 
   document.getElementById("doubling_cube").style.display = "none";
+  togglePlayerTurn();
   setupTimerForPlayer(!isPlayerOne);
 }
 
 function onClickDoubleTake(isPlayerOne) {
+  observedGameState.isDoubling = false;
   UNDO_REDO_BUFFER.add_to_history(new TakeDoubleAction(getPlayerTurn(isPlayerOne)));
 
   observedGameState.currentGameValue = gameState.currentGameValue * 2;
   observedGameState.cubeOwnership = isPlayerOne ? CubeOwnership.PLAYER_ONE : CubeOwnership.PLAYER_TWO;
 
+  const decidingPlayerUI = !isPlayerOne ? document.getElementById("player_two") :
+      document.getElementById("player_one")
+  decidingPlayerUI.querySelector("#double_action_ui").style.display = "none";
+
   document.getElementById("doubling_cube").style.display = "flex";
+  togglePlayerTurn();
   setupTimerForPlayer(!isPlayerOne);
 }
 
 function onClickDoubleDrop(isPlayerOne) {
+  observedGameState.isDoubling = false;
   UNDO_REDO_BUFFER.add_to_history(new DropDoubleAction(getPlayerTurn(isPlayerOne)));
 
   handlePlayerWin(!isPlayerOne);
