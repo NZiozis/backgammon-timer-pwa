@@ -50,12 +50,18 @@ THESE CAN BE THE SAME DIALOG. JUST NEED TO CHANGE THE CONTENT
 - [X] Fix: Screen resizes when switching between actions
 - [X] Different themes
 
+## DOING
+- [ ] Some sort of undo and redo
+  - [-] Undo logic
+  - [ ] Redo logic
+  - [ ] UI for undo and redo buttons
+
+
 ## TODO Later
 - [ ] Media share buttons
 - [ ] Setup in progress game
 - [ ] Save gameState at intervals so accidental refresh doesn't lose data
 - [ ] Add button to install PWA separate from banner
-- [ ] Some sort of undo
 - [ ] Different penalties for running out the clock
 
 ## NOTES
