@@ -96,15 +96,16 @@ class Action {
 
     this.currentPlayerTurn = gameState.currentPlayerTurn;
     this.cubeOwnership = gameState.cubeOwnership;
+    this.currentGameValue = gameState.currentGameValue;
   }
 }
 
 class RollAction extends Action {
-  constructor(dice_one, dice_two) {
+  constructor(diceOne, diceTwo) {
     super(ActionType.ROLL);
 
-    this.dice_one = dice_one;
-    this.dice_two = dice_two;
+    this.diceOne = diceOne;
+    this.diceTwo = diceTwo;
   }
 }
 
@@ -124,8 +125,6 @@ class EndTurnAction extends Action {
 class OfferDoubleAction extends Action {
   constructor() {
     super(ActionType.OFFER_DOUBLE);
-
-    this.current_game_value = gameState.currentGameValue;
     this.new_game_value = gameState.currentGameValue * 2;
   }
 }
@@ -807,11 +806,7 @@ function hideUiElements(elements) {
   });
 }
 
-function onClickUndo() {
-  // TODO IMPLEMENT
-  pauseGame();
-  const action = UNDO_REDO_BUFFER.undo();
-
+function setGenericaGameStateBasedOnAction(action) {
   observedGameState.playerOneTotalTimeRemainingMs = action.playerOneTotalTimeRemainingMs;
   observedGameState.playerTwoTotalTimeRemainingMs = action.playerTwoTotalTimeRemainingMs;
   observedGameState.playerOneReserveTimeRemainingMs = action.playerOneReserveTimeRemainingMs;
@@ -823,6 +818,15 @@ function onClickUndo() {
 
   observedGameState.currentPlayerTurn = action.currentPlayerTurn;
   observedGameState.cubeOwnership = action.cubeOwnership;
+  observedGameState.currentGameValue = action.currentGameValue;
+}
+
+function onClickUndo() {
+  // TODO IMPLEMENT
+  pauseGame();
+
+  const action = UNDO_REDO_BUFFER.undo();
+  setGenericaGameStateBasedOnAction(action);
 
   const playerOneMain = document.querySelector("#player_one #main_ui");
   const playerOneRoll = document.querySelector("#player_one #roll_action_ui");
@@ -834,6 +838,7 @@ function onClickUndo() {
   const playerTwoDouble = document.querySelector("#player_two #double_action_ui");
   const playerTwoStart = document.querySelector("#player_two #start_ui");
 
+  const elementsToHide = [];
   switch (action.type) {
     case ActionType.START:
       playerOneStart.style.display = "flex";
@@ -841,7 +846,8 @@ function onClickUndo() {
       hideUiElements([playerOneRoll, playerOneDouble, playerOneMain, playerTwoRoll, playerTwoDouble, playerTwoMain]);
       break;
     case ActionType.ROLL:
-      const elementsToHide = [playerOneRoll, playerOneDouble, playerOneStart, playerTwoRoll, playerTwoDouble, playerTwoStart];
+    case ActionType.OFFER_DOUBLE:
+      elementsToHide.push(playerOneRoll, playerOneDouble, playerOneStart, playerTwoRoll, playerTwoDouble, playerTwoStart);
 
       if (action.playerTurn === PlayerTurn.PLAYER_ONE) {
         playerOneMain.style.display = "flex";
@@ -852,7 +858,44 @@ function onClickUndo() {
       }
       hideUiElements(elementsToHide);
       break;
+    case ActionType.DROP_DOUBLE:
+    case ActionType.TAKE_DOUBLE:
+      // NOTE FIX TIMER LOGIC FOR UNPAUSE DUE TO THE CURRENT PLAYER TURN
+      elementsToHide.push(playerOneRoll, playerOneMain, playerOneStart, playerTwoRoll, playerTwoMain, playerTwoStart, document.getElementById("doubling_cube"));
 
+      // The player turn does not switch when the double is taken or dropped. It stays
+      // the turn of the player that offered the double. So, the UI needs to be shown
+      // for the opposite player than you might expect
+      if (action.playerTurn === PlayerTurn.PLAYER_ONE) {
+        playerTwoDouble.style.display = "flex";
+        elementsToHide.push(playerOneDouble);
+      } else if (action.playerTurn === PlayerTurn.PLAYER_TWO) {
+        playerOneDouble.style.display = "flex";
+        elementsToHide.push(playerTwoDouble);
+      }
+
+      hideUiElements(elementsToHide);
+      break;
+    case ActionType.END_TURN:
+      elementsToHide.push(playerOneMain, playerOneDouble, playerOneStart, playerTwoMain, playerTwoDouble, playerTwoStart);
+
+      // Assume that roll was last action before end turn because that is the only
+      // possible previous action. Can only hit done from roll screen
+      const lastRollAction = UNDO_REDO_BUFFER.u_peek();
+
+      if (action.playerTurn === PlayerTurn.PLAYER_ONE) {
+        playerOneRoll.style.display = "flex";
+        playerOneRoll.querySelector("#dice_one_span").innerText = lastRollAction.diceOne;
+        playerOneRoll.querySelector("#dice_two_span").innerText = lastRollAction.diceTwo;
+        elementsToHide.push(playerTwoRoll);
+      } else if (action.playerTurn === PlayerTurn.PLAYER_TWO) {
+        playerTwoRoll.style.display = "flex";
+        playerTwoRoll.querySelector("#dice_one_span").innerText = lastRollAction.diceOne;
+        playerTwoRoll.querySelector("#dice_two_span").innerText = lastRollAction.diceTwo;
+        elementsToHide.push(playerOneRoll);
+      }
+      hideUiElements(elementsToHide);
+      break;
   }
 
 }
