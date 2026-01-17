@@ -419,14 +419,14 @@ const handleGameStateChange = {
         switch (target.currentPlayerTurn) {
           case PlayerTurn.PLAYER_ONE:
             playerOneMainUI.style.display = "flex";
-            playerOneMainUI.querySelector(".double_button").style.display = "none";
-            playerTwoMainUI.querySelector(".double_button").style.display = "block";
+            playerOneMainUI.querySelector(".double_button").style.display = "block";
+            playerTwoMainUI.querySelector(".double_button").style.display = "none";
             document.querySelector("#player_two #double_action_ui").style.display = "none";
             break;
           case PlayerTurn.PLAYER_TWO:
             playerTwoMainUI.style.display = "flex";
-            playerOneMainUI.querySelector(".double_button").style.display = "block";
-            playerTwoMainUI.querySelector(".double_button").style.display = "none";
+            playerOneMainUI.querySelector(".double_button").style.display = "none";
+            playerTwoMainUI.querySelector(".double_button").style.display = "block";
             document.querySelector("#player_one #double_action_ui").style.display = "none";
             break
           case PlayerTurn.NEUTRAL:
