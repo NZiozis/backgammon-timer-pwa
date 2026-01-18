@@ -52,6 +52,8 @@ THESE CAN BE THE SAME DIALOG. JUST NEED TO CHANGE THE CONTENT
 - [X] Game state driven UI updates
 
 ## DOING
+- [-] Remove currentPlayerTurn from gameState
+- [ ] Remove necessity for togglePlayerTurn method
 - [ ] Migrate UNDO to use game state driven UI updates
 - [ ] Some sort of undo and redo
   - [-] Undo logic

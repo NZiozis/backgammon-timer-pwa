@@ -83,9 +83,14 @@ class UndoRedoBuffer {
 let UNDO_REDO_BUFFER = new UndoRedoBuffer();
 
 class Action {
-  constructor(type) {
+  constructor(type, actingPlayer) {
     this.type = type;
+    this.actingPlayer = actingPlayer;
+
+    // TODO potentially remove
     this.playerTurn = gameState.currentPlayerTurn;
+    // TODO potentially remove
+    this.currentPlayerTurn = gameState.currentPlayerTurn;
 
     this.playerOneGames = gameState.playerOneGames;
     this.playerOneScore = gameState.playerOneScore;
@@ -98,16 +103,14 @@ class Action {
     this.playerTwoTotalTimeRemainingMs = gameState.playerTwoTotalTimeRemainingMs;
     this.playerTwoReserveTimeRemainingMs = gameState.playerTwoReserveTimeRemainingMs;
 
-    this.currentPlayerTurn = gameState.currentPlayerTurn;
     this.cubeOwnership = gameState.cubeOwnership;
     this.currentGameValue = gameState.currentGameValue;
-    this.isDoubling = gameState.isDoubling;
   }
 }
 
 class RollAction extends Action {
-  constructor(diceOne, diceTwo) {
-    super(ActionType.ROLL);
+  constructor(actingPlayer, diceOne, diceTwo) {
+    super(ActionType.ROLL, actingPlayer);
 
     this.diceOne = diceOne;
     this.diceTwo = diceTwo;
@@ -116,38 +119,37 @@ class RollAction extends Action {
 
 class StartAction extends Action {
   constructor(playerToStart) {
-    super(ActionType.START)
+    super(ActionType.START, playerToStart)
     this.playerToStart = playerToStart;
   }
 }
 
 class EndTurnAction extends Action {
-  constructor() {
-    super(ActionType.END_TURN);
+  constructor(actingPlayer) {
+    super(ActionType.END_TURN, actingPlayer);
   }
 }
 
 class OfferDoubleAction extends Action {
-  constructor() {
-    super(ActionType.OFFER_DOUBLE);
+  constructor(actingPlayer) {
+    super(ActionType.OFFER_DOUBLE, actingPlayer);
     this.newGameValue = gameState.currentGameValue * 2;
   }
 }
 
 class DropDoubleAction extends Action {
-  constructor(player_dropping) {
-    super(ActionType.DROP_DOUBLE);
+  constructor(actingPlayer) {
+    super(ActionType.DROP_DOUBLE, actingPlayer);
 
-    this.playerDropping = player_dropping;
     this.forfeitedGameValue = gameState.currentGameValue;
   }
 }
 
 class TakeDoubleAction extends Action {
-  constructor(player_taking) {
-    super(ActionType.TAKE_DOUBLE);
+  constructor(actingPlayer) {
+    super(ActionType.TAKE_DOUBLE, actingPlayer);
 
-    this.playerTaking = player_taking;
+    this.playerTaking = actingPlayer;
     this.previousGameValue = gameState.currentGameValue;
     this.currentGameValue = gameState.currentGameValue * 2;
   }
@@ -350,10 +352,9 @@ const gameState = {
   playerTwoReserveTimeRemainingMs: TEN_SECONDS_IN_MS,
   playerTwoTimeoutId: null,
 
-  isDoubling: false, // Toggled when a double is offered. MUST BE TOGGLED BEFORE PLAYER TURN IS CHANGED
-
   forceStopTimer: true, // This makes sure that tick fully stops on a reset. Since the tick is handled by setTimeout, there is a chance that it will run over and ignore a gameState reset if this isn't set. This is toggled to false on game start and is set to true when a function like resetGameState is called
 }
+
 const handleGameStateChange = {
   set(target, property, value) {
     const playerOneMainUI = document.querySelector("#player_one #main_ui");
@@ -365,23 +366,32 @@ const handleGameStateChange = {
 
 
     if (property === "currentAction") {
+
       switch (value.type) {
         case ActionType.START:
           Array.from(document.getElementsByClassName("start_ui")).forEach(function(it) {
             it.style.display = "none";
           });
 
+          if (value.playerToStart === PlayerTurn.PLAYER_ONE) {
+            playerOneMainUI.style.display = "flex";
+            playerTwoMainUI.style.display = "none";
+          } else if (value.playerToStart === PlayerTurn.PLAYER_TWO) {
+            playerOneMainUI.style.display = "none";
+            playerTwoMainUI.style.display = "flex";
+          }
+
           observedGameState.forceStopTimer = false;
           observedGameState.currentPlayerTurn = value.playerToStart;
           setupTimerForPlayer(value.playerToStart === PlayerTurn.PLAYER_ONE);
           break;
         case ActionType.ROLL:
-          if (gameState.currentPlayerTurn === PlayerTurn.PLAYER_ONE) {
+          if (value.actingPlayer === PlayerTurn.PLAYER_ONE) {
             playerOneMainUI.style.display = "none";
             playerOneRollUI.style.display = "flex";
             document.querySelector("#player_one #dice_one_span").innerText = value.diceOne;
             document.querySelector("#player_one #dice_two_span").innerText = value.diceTwo;
-          } else if (gameState.currentPlayerTurn === PlayerTurn.PLAYER_TWO) {
+          } else if (value.actingPlayer === PlayerTurn.PLAYER_TWO) {
             playerTwoMainUI.style.display = "none";
             playerTwoRollUI.style.display = "flex";
             document.querySelector("#player_two #dice_one_span").innerText = value.diceOne;
@@ -389,12 +399,21 @@ const handleGameStateChange = {
           }
           break;
         case ActionType.END_TURN:
+          if (value.actingPlayer === PlayerTurn.PLAYER_ONE) {
+            playerOneMainUI.style.display = "none";
+            playerTwoMainUI.style.display = "flex";
+            playerOneRollUI.style.display = "none";
+          } else if (value.actingPlayer === PlayerTurn.PLAYER_TWO) {
+            playerOneMainUI.style.display = "flex";
+            playerTwoMainUI.style.display = "none";
+            playerTwoRollUI.style.display = "none";
+          }
           togglePlayerTurn();
-          setupTimerForPlayer(observedGameState.currentPlayerTurn === PlayerTurn.PLAYER_ONE);
+          setupTimerForPlayer(value.actingPlayer === PlayerTurn.PLAYER_ONE);
           break;
 
         case ActionType.OFFER_DOUBLE:
-          const isPlayerOneOffering = observedGameState.currentPlayerTurn === PlayerTurn.PLAYER_ONE;
+          const isPlayerOneOffering = value.actingPlayer === PlayerTurn.PLAYER_ONE;
 
           if (isPlayerOneOffering) {
             playerOneMainUI.style.display = "none";
@@ -419,9 +438,13 @@ const handleGameStateChange = {
           observedGameState.cubeOwnership = isPlayerOneTaking ? CubeOwnership.PLAYER_ONE : CubeOwnership.PLAYER_TWO;
 
           if (isPlayerOneTaking) {
+            playerOneMainUI.style.display = "none";
             playerOneDoubleUI.style.display = "none";
+            playerTwoMainUI.style.display = "flex";
           } else if (value.playerTaking === PlayerTurn.PLAYER_TWO) {
+            playerTwoMainUI.style.display = "none";
             playerTwoDoubleUI.style.display = "none";
+            playerOneMainUI.style.display = "flex";
           }
 
           document.getElementById("doubling_cube").style.display = "flex";
@@ -437,28 +460,6 @@ const handleGameStateChange = {
       target.playerTwoTimeoutId = null;
       clearTimeout(target.playerOneTimeoutId);
       target.playerOneTimeoutId = null;
-    } else if (property === "currentPlayerTurn") {
-      const previousWasNeutral = gameState.currentPlayerTurn === PlayerTurn.NEUTRAL;
-
-      if (gameState.isDoubling) {
-        // TODO SOME UI CHANGES
-        // THE ABOVE TODO IS A CLEANUP STEP SINCE THE UI CHANGES ARE ALREADY HANDLED IN THE ON CLICK METHOD
-      } else {
-        if (value === PlayerTurn.PLAYER_ONE) {
-          playerOneMainUI.style.display = "flex";
-          playerTwoMainUI.style.display = "none";
-          if (!previousWasNeutral) {
-            document.querySelector("#player_two #roll_action_ui").style.display = "none";
-          }
-        } else if (value === PlayerTurn.PLAYER_TWO) {
-          playerOneMainUI.style.display = "none";
-          playerTwoMainUI.style.display = "flex";
-
-          if (!previousWasNeutral) {
-            document.querySelector("#player_one #roll_action_ui").style.display = "none";
-          }
-        }
-      }
     } else if (property === "cubeOwnership") {
       const midline = document.getElementById("midline");
       const doublingCube = document.getElementById("doubling_cube");
@@ -905,7 +906,7 @@ function setGenericaGameStateBasedOnAction(action) {
   observedGameState.currentPlayerTurn = action.currentPlayerTurn;
   observedGameState.cubeOwnership = action.cubeOwnership;
   observedGameState.currentGameValue = action.currentGameValue;
-  observedGameState.isDoubling = action.isDoubling;
+  observedGameState.currentAction = action;
 }
 
 function onClickUndo() {
@@ -987,27 +988,24 @@ function onClickUndo() {
 }
 
 function onClickDone(isPlayerOne) {
-  const endTurnAction = new EndTurnAction();
+  const endTurnAction = new EndTurnAction(getPlayerTurn(isPlayerOne));
   UNDO_REDO_BUFFER.add_to_history(endTurnAction);
   observedGameState.currentAction = endTurnAction;
 }
 
 function onClickDouble(isPlayerOne) {
-  observedGameState.isDoubling = true;
-  const offerDoubleAction = new OfferDoubleAction()
+  const offerDoubleAction = new OfferDoubleAction(getPlayerTurn(isPlayerOne))
   UNDO_REDO_BUFFER.add_to_history(offerDoubleAction);
   observedGameState.currentAction = offerDoubleAction;
 }
 
 function onClickDoubleTake(isPlayerOne) {
-  observedGameState.isDoubling = false;
   const takeDoubleAction = new TakeDoubleAction(getPlayerTurn(isPlayerOne))
   UNDO_REDO_BUFFER.add_to_history(takeDoubleAction);
   observedGameState.currentAction = takeDoubleAction;
 }
 
 function onClickDoubleDrop(isPlayerOne) {
-  observedGameState.isDoubling = false;
   const dropDoubleAction = new DropDoubleAction(getPlayerTurn(isPlayerOne))
   UNDO_REDO_BUFFER.add_to_history();
   observedGameState.currentAction = dropDoubleAction;
@@ -1018,7 +1016,7 @@ function onClickRoll(isPlayerOne) {
   let dice_one = Math.floor(Math.random() * 6) + 1;
   let dice_two = Math.floor(Math.random() * 6) + 1;
 
-  const rollAction = new RollAction(dice_one, dice_two)
+  const rollAction = new RollAction(getPlayerTurn(isPlayerOne), dice_one, dice_two)
   observedGameState.currentAction = rollAction;
   UNDO_REDO_BUFFER.add_to_history(rollAction);
 }
