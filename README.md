@@ -49,14 +49,14 @@ THESE CAN BE THE SAME DIALOG. JUST NEED TO CHANGE THE CONTENT
 - [X] Work for larger/landscape screens
 - [X] Fix: Screen resizes when switching between actions
 - [X] Different themes
+- [X] Game state driven UI updates
 
 ## DOING
-- [ ] Migrate Doubling actions to gameState driven UI updates
+- [ ] Migrate UNDO to use game state driven UI updates
 - [ ] Some sort of undo and redo
   - [-] Undo logic
   - [ ] Redo logic
   - [ ] UI for undo and redo buttons
-- [ ] Migrate Doubling actions to gameState driven UI updates
 
 
 ## TODO Later
