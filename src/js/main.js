@@ -87,11 +87,6 @@ class Action {
     this.type = type;
     this.actingPlayer = actingPlayer;
 
-    // TODO potentially remove
-    this.playerTurn = gameState.currentPlayerTurn;
-    // TODO potentially remove
-    this.currentPlayerTurn = gameState.currentPlayerTurn;
-
     this.playerOneGames = gameState.playerOneGames;
     this.playerOneScore = gameState.playerOneScore;
     this.playerTwoGames = gameState.playerTwoGames;
@@ -328,9 +323,6 @@ const gameState = {
   */
   currentAction: null, // Set to STARTING_ACTION after initialization to prevent circular references
 
-  // TODO REMOVE
-  currentPlayerTurn: PlayerTurn.NEUTRAL,
-
   currentGameValue: 1, // Increaeses if doubling cube is used
 
   playerOneGames: 0,
@@ -380,7 +372,6 @@ const handleGameStateChange = {
           }
 
           observedGameState.forceStopTimer = false;
-          observedGameState.currentPlayerTurn = value.playerToStart;
           setupTimerForPlayer(value.playerToStart === PlayerTurn.PLAYER_ONE);
           break;
         case ActionType.ROLL:
@@ -406,7 +397,6 @@ const handleGameStateChange = {
             playerTwoMainUI.style.display = "none";
             playerTwoRollUI.style.display = "none";
           }
-          togglePlayerTurn();
           setupTimerForPlayer(value.actingPlayer !== PlayerTurn.PLAYER_ONE);
           break;
 
@@ -423,7 +413,6 @@ const handleGameStateChange = {
             playerOneDoubleUI.querySelector("#offered_cube").innerText = value.newGameValue;
           }
           document.getElementById("doubling_cube").style.display = "none";
-          togglePlayerTurn();
           setupTimerForPlayer(!isPlayerOneOffering);
           break;
         case ActionType.TAKE_DOUBLE:
@@ -465,7 +454,6 @@ const handleGameStateChange = {
           }
 
           document.getElementById("doubling_cube").style.display = "flex";
-          togglePlayerTurn();
           setupTimerForPlayer(!isPlayerOneTaking);
           break;
 
@@ -545,9 +533,6 @@ function resetGameState() {
   observedGameState.forceStopTimer = true;
   observedGameState.currentAction = STARTING_ACTION;
 
-  // TODO REMOVE
-  observedGameState.currentPlayerTurn = PlayerTurn.NEUTRAL;
-
   observedGameState.currentGameValue = 1;
 
   observedGameState.playerOneGames = 0;
@@ -586,7 +571,7 @@ function resumeGame() {
   document.getElementById("unclickable_overlay").style.display = "none";
 
   if (observedGameState.currentAction.type !== ActionType.END_GAME) {
-    setupTimerForPlayer(gameState.currentPlayerTurn === PlayerTurn.PLAYER_ONE);
+    setupTimerForPlayer(observedGameState.currentAction.actingPlayer === PlayerTurn.PLAYER_ONE);
   }
 }
 
@@ -609,17 +594,6 @@ function saveStateToLocalStorage(key, state) {
     localStorage.setItem(key, serializedState);
   } catch (error) {
     console.error("Error saving state to local storage:", error);
-  }
-}
-
-function togglePlayerTurn() {
-  console.assert(gameState.currentPlayerTurn !== PlayerTurn.NEUTRAL,
-    "Trying to toggle player turn when no player active");
-
-  if (gameState.currentPlayerTurn === PlayerTurn.PLAYER_ONE) {
-    observedGameState.currentPlayerTurn = PlayerTurn.PLAYER_TWO;
-  } else {
-    observedGameState.currentPlayerTurn = PlayerTurn.PLAYER_ONE;
   }
 }
 
@@ -879,8 +853,6 @@ function setGenericaGameStateBasedOnAction(action) {
   observedGameState.playerOneScore = action.playerOneScore;
   observedGameState.playerTwoGames = action.playerTwoGames;
   observedGameState.playerTwoScore = action.playerTwoScore;
-
-  observedGameState.currentPlayerTurn = action.currentPlayerTurn;
   observedGameState.currentGameValue = action.currentGameValue;
   observedGameState.currentAction = action;
 }
@@ -916,10 +888,10 @@ function onClickUndo() {
     case ActionType.OFFER_DOUBLE:
       elementsToHide.push(playerOneRoll, playerOneDouble, playerOneStart, playerTwoRoll, playerTwoDouble, playerTwoStart);
 
-      if (action.playerTurn === PlayerTurn.PLAYER_ONE) {
+      if (action.actingPlayer === PlayerTurn.PLAYER_ONE) {
         playerOneMain.style.display = "flex";
         elementsToHide.push(playerTwoMain);
-      } else if (action.playerTurn === PlayerTurn.PLAYER_TWO) {
+      } else if (action.actingPlayer === PlayerTurn.PLAYER_TWO) {
         playerTwoMain.style.display = "flex";
         elementsToHide.push(playerOneMain);
       }
@@ -928,10 +900,10 @@ function onClickUndo() {
     case ActionType.TAKE_DOUBLE:
       elementsToHide.push(playerOneRoll, playerOneMain, playerOneStart, playerTwoRoll, playerTwoMain, playerTwoStart, document.getElementById("doubling_cube"));
 
-      if (action.playerTurn === PlayerTurn.PLAYER_ONE) {
+      if (action.actingPlayer === PlayerTurn.PLAYER_ONE) {
         playerOneDouble.style.display = "flex";
         elementsToHide.push(playerTwoDouble);
-      } else if (action.playerTurn === PlayerTurn.PLAYER_TWO) {
+      } else if (action.actingPlayer === PlayerTurn.PLAYER_TWO) {
         playerTwoDouble.style.display = "flex";
         elementsToHide.push(playerOneDouble);
       }
@@ -945,12 +917,12 @@ function onClickUndo() {
       // possible previous action. Can only hit done from roll screen
       const lastRollAction = UNDO_REDO_BUFFER.u_peek();
 
-      if (action.playerTurn === PlayerTurn.PLAYER_ONE) {
+      if (action.actingPlayer === PlayerTurn.PLAYER_ONE) {
         playerOneRoll.style.display = "flex";
         playerOneRoll.querySelector("#dice_one_span").innerText = lastRollAction.diceOne;
         playerOneRoll.querySelector("#dice_two_span").innerText = lastRollAction.diceTwo;
         elementsToHide.push(playerTwoRoll);
-      } else if (action.playerTurn === PlayerTurn.PLAYER_TWO) {
+      } else if (action.actingPlayer === PlayerTurn.PLAYER_TWO) {
         playerTwoRoll.style.display = "flex";
         playerTwoRoll.querySelector("#dice_one_span").innerText = lastRollAction.diceOne;
         playerTwoRoll.querySelector("#dice_two_span").innerText = lastRollAction.diceTwo;
@@ -1137,7 +1109,6 @@ function handlePlayerWin(didPlayerOneWin, multiplier=1, forceGameWin=false) {
   }
 
   observedGameState.currentGameValue = 1;
-  observedGameState.currentPlayerTurn = PlayerTurn.NEUTRAL;
 
   document.getElementById("doubling_cube").style.display = "flex";
 
