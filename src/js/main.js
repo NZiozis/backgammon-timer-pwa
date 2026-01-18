@@ -15,7 +15,7 @@ const ActionType = {
   OFFER_DOUBLE: "OFFER_DOUBLE",
   TAKE_DOUBLE: "TAKE_DOUBLE",
   END_TURN: "END_TURN",
-  END_GAME: "END_GAME",
+  END_GAME: "END_GAME", // Also functions as double drop
 }
 
 class Stack {

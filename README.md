@@ -50,12 +50,14 @@ THESE CAN BE THE SAME DIALOG. JUST NEED TO CHANGE THE CONTENT
 - [X] Fix: Screen resizes when switching between actions
 - [X] Different themes
 - [X] Game state driven UI updates
+- [X] Remove currentPlayerTurn from gameState
+- [X] Replaced DROP_DOUBLE action with END_GAME
+- [X] Remove necessity for togglePlayerTurn method
 
 ## DOING
-- [-] Remove currentPlayerTurn from gameState
-- [ ] Replaced DROP_DOUBLE action with END_GAME
-- [ ] Remove necessity for togglePlayerTurn method
 - [ ] Migrate UNDO to use game state driven UI updates
+  - Make sure to do logic for END_GAME because I removed DROP_DOUBLE without doing
+    any new logic
 - [ ] Some sort of undo and redo
   - [-] Undo logic
   - [ ] Redo logic
