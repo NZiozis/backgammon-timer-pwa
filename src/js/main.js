@@ -13,9 +13,9 @@ const ActionType = {
   START: "START",
   ROLL: "ROLL",
   OFFER_DOUBLE: "OFFER_DOUBLE",
-  DROP_DOUBLE: "DROP_DOUBLE",
   TAKE_DOUBLE: "TAKE_DOUBLE",
   END_TURN: "END_TURN",
+  END_GAME: "END_GAME",
 }
 
 class Stack {
@@ -103,8 +103,14 @@ class Action {
     this.playerTwoTotalTimeRemainingMs = gameState.playerTwoTotalTimeRemainingMs;
     this.playerTwoReserveTimeRemainingMs = gameState.playerTwoReserveTimeRemainingMs;
 
-    this.cubeOwnership = gameState.cubeOwnership;
     this.currentGameValue = gameState.currentGameValue;
+  }
+}
+
+class EndGameAction extends Action {
+  constructor(actingPlayer) {
+    // actingPlayer can be null on page load for the starting state
+    super(ActionType.END_GAME, actingPlayer);
   }
 }
 
@@ -137,14 +143,6 @@ class OfferDoubleAction extends Action {
   }
 }
 
-class DropDoubleAction extends Action {
-  constructor(actingPlayer) {
-    super(ActionType.DROP_DOUBLE, actingPlayer);
-
-    this.forfeitedGameValue = gameState.currentGameValue;
-  }
-}
-
 class TakeDoubleAction extends Action {
   constructor(actingPlayer) {
     super(ActionType.TAKE_DOUBLE, actingPlayer);
@@ -163,12 +161,6 @@ const PlayerTurn = {
 
 function getPlayerTurn(isPlayerOne) {
   return isPlayerOne ? PlayerTurn.PLAYER_ONE : PlayerTurn.PLAYER_TWO;
-}
-
-const CubeOwnership = {
-  NEUTRAL: "NEUTRAL",
-  PLAYER_ONE: "PLAYER_ONE",
-  PLAYER_TWO: "PLAYER_TWO",
 }
 
 const StartType = {
@@ -334,11 +326,12 @@ const gameState = {
   * to start a new game. Page refreshes can be caused accidentally, which we want
   * to avoid.
   */
-  currentAction: null,
+  currentAction: null, // Set to STARTING_ACTION after initialization to prevent circular references
 
+  // TODO REMOVE
   currentPlayerTurn: PlayerTurn.NEUTRAL,
+
   currentGameValue: 1, // Increaeses if doubling cube is used
-  cubeOwnership: CubeOwnership.NEUTRAL,
 
   playerOneGames: 0,
   playerOneScore: 0,
@@ -354,6 +347,9 @@ const gameState = {
 
   forceStopTimer: true, // This makes sure that tick fully stops on a reset. Since the tick is handled by setTimeout, there is a chance that it will run over and ignore a gameState reset if this isn't set. This is toggled to false on game start and is set to true when a function like resetGameState is called
 }
+const STARTING_ACTION = new EndGameAction(null);
+gameState.currentAction = STARTING_ACTION;
+
 
 const handleGameStateChange = {
   set(target, property, value) {
@@ -363,7 +359,9 @@ const handleGameStateChange = {
     const playerTwoRollUI = document.querySelector("#player_two #roll_action_ui");
     const playerOneDoubleUI = document.querySelector("#player_one #double_action_ui");
     const playerTwoDoubleUI = document.querySelector("#player_two #double_action_ui");
-
+    const midline = document.getElementById("midline");
+    const doublingCube = document.getElementById("doubling_cube");
+    const isLandscape = window.matchMedia("(orientation: landscape)").matches;
 
     if (property === "currentAction") {
 
@@ -409,7 +407,7 @@ const handleGameStateChange = {
             playerTwoRollUI.style.display = "none";
           }
           togglePlayerTurn();
-          setupTimerForPlayer(value.actingPlayer === PlayerTurn.PLAYER_ONE);
+          setupTimerForPlayer(value.actingPlayer !== PlayerTurn.PLAYER_ONE);
           break;
 
         case ActionType.OFFER_DOUBLE:
@@ -428,29 +426,61 @@ const handleGameStateChange = {
           togglePlayerTurn();
           setupTimerForPlayer(!isPlayerOneOffering);
           break;
-        case ActionType.DROP_DOUBLE:
-          const didPlayerOneWin = value.playerDropping === PlayerTurn.PLAYER_TWO;
-          handlePlayerWin(didPlayerOneWin);
-          break;
         case ActionType.TAKE_DOUBLE:
           const isPlayerOneTaking = value.playerTaking === PlayerTurn.PLAYER_ONE;
           observedGameState.currentGameValue = value.currentGameValue;
-          observedGameState.cubeOwnership = isPlayerOneTaking ? CubeOwnership.PLAYER_ONE : CubeOwnership.PLAYER_TWO;
+
 
           if (isPlayerOneTaking) {
             playerOneMainUI.style.display = "none";
             playerOneDoubleUI.style.display = "none";
+            playerOneMainUI.querySelector(".double_button").style.display = "block";
+
             playerTwoMainUI.style.display = "flex";
+            playerTwoMainUI.querySelector(".double_button").style.display = "none";
+
+            if (isLandscape) {
+              doublingCube.style.transform = "rotate(90deg)";
+              midline.style.alignItems = "start";
+            } else {
+              doublingCube.style.transform = "rotate(180deg)";
+              midline.style.justifyContent = "start";
+            }
           } else if (value.playerTaking === PlayerTurn.PLAYER_TWO) {
+            playerOneMainUI.style.display = "flex";
+            playerOneMainUI.querySelector(".double_button").style.display = "none";
+
             playerTwoMainUI.style.display = "none";
             playerTwoDoubleUI.style.display = "none";
-            playerOneMainUI.style.display = "flex";
+            playerTwoMainUI.querySelector(".double_button").style.display = "block";
+
+            if (isLandscape) {
+              doublingCube.style.transform = "rotate(-90deg)";
+              midline.style.alignItems = "end";
+            } else {
+              doublingCube.style.transform = "rotate(0deg)";
+              midline.style.justifyContent = "end";
+            }
+
           }
 
           document.getElementById("doubling_cube").style.display = "flex";
           togglePlayerTurn();
           setupTimerForPlayer(!isPlayerOneTaking);
           break;
+
+        case ActionType.END_GAME:
+          if (isLandscape) {
+            doublingCube.style.transform = "rotate(0deg)";
+            midline.style.alignItems = "center";
+          } else {
+            doublingCube.style.transform = "rotate(90deg)";
+            midline.style.justifyContent = "center";
+          }
+          const didPlayerOneWin = value.actingPlayer === PlayerTurn.PLAYER_TWO;
+          handlePlayerWin(didPlayerOneWin);
+          break;
+
         default:
           console.log("Either leak via lack of break or action type not handled")
           break;
@@ -460,61 +490,6 @@ const handleGameStateChange = {
       target.playerTwoTimeoutId = null;
       clearTimeout(target.playerOneTimeoutId);
       target.playerOneTimeoutId = null;
-    } else if (property === "cubeOwnership") {
-      const midline = document.getElementById("midline");
-      const doublingCube = document.getElementById("doubling_cube");
-      if (window.matchMedia("(orientation: landscape)").matches) {
-        switch (value) {
-          case CubeOwnership.NEUTRAL:
-            doublingCube.style.transform = "rotate(0deg)";
-            midline.style.alignItems = "center";
-            break;
-          case CubeOwnership.PLAYER_ONE:
-            doublingCube.style.transform = "rotate(90deg)";
-            midline.style.alignItems = "start";
-            break;
-          case CubeOwnership.PLAYER_TWO:
-            doublingCube.style.transform = "rotate(-90deg)";
-            midline.style.alignItems = "end";
-            break;
-        }
-      } else {
-        switch (value) {
-          case CubeOwnership.NEUTRAL:
-            doublingCube.style.transform = "rotate(90deg)";
-            midline.style.justifyContent = "center";
-            break;
-          case CubeOwnership.PLAYER_ONE:
-            doublingCube.style.transform = "rotate(180deg)";
-            midline.style.justifyContent = "start";
-            break;
-          case CubeOwnership.PLAYER_TWO:
-            doublingCube.style.transform = "rotate(0deg)";
-            midline.style.justifyContent = "end";
-            break;
-        }
-      }
-
-      if (value !== CubeOwnership.NEUTRAL) {
-        switch (target.currentPlayerTurn) {
-          case PlayerTurn.PLAYER_ONE:
-            playerOneMainUI.style.display = "flex";
-            playerOneMainUI.querySelector(".double_button").style.display = "block";
-            playerTwoMainUI.querySelector(".double_button").style.display = "none";
-            document.querySelector("#player_two #double_action_ui").style.display = "none";
-            break;
-          case PlayerTurn.PLAYER_TWO:
-            playerTwoMainUI.style.display = "flex";
-            playerOneMainUI.querySelector(".double_button").style.display = "none";
-            playerTwoMainUI.querySelector(".double_button").style.display = "block";
-            document.querySelector("#player_one #double_action_ui").style.display = "none";
-            break
-          case PlayerTurn.NEUTRAL:
-            console.error("Turn cannot be neutral if cube ownership is not neutral")
-            break
-        }
-      }
-
     } else if (property === "currentGameValue") {
       const doublingCube = document.getElementById("doubling_cube");
       doublingCube.innerText = value === 1 ? "64" : value;
@@ -568,10 +543,12 @@ const observedGameState = new Proxy(gameState, handleGameStateChange);
 
 function resetGameState() {
   observedGameState.forceStopTimer = true;
+  observedGameState.currentAction = STARTING_ACTION;
 
+  // TODO REMOVE
   observedGameState.currentPlayerTurn = PlayerTurn.NEUTRAL;
+
   observedGameState.currentGameValue = 1;
-  observedGameState.cubeOwnership = CubeOwnership.NEUTRAL;
 
   observedGameState.playerOneGames = 0;
   observedGameState.playerOneScore = 0;
@@ -608,7 +585,7 @@ function resumeGame() {
 
   document.getElementById("unclickable_overlay").style.display = "none";
 
-  if (gameState.currentPlayerTurn !== PlayerTurn.NEUTRAL) {
+  if (observedGameState.currentAction.type !== ActionType.END_GAME) {
     setupTimerForPlayer(gameState.currentPlayerTurn === PlayerTurn.PLAYER_ONE);
   }
 }
@@ -904,7 +881,6 @@ function setGenericaGameStateBasedOnAction(action) {
   observedGameState.playerTwoScore = action.playerTwoScore;
 
   observedGameState.currentPlayerTurn = action.currentPlayerTurn;
-  observedGameState.cubeOwnership = action.cubeOwnership;
   observedGameState.currentGameValue = action.currentGameValue;
   observedGameState.currentAction = action;
 }
@@ -949,7 +925,6 @@ function onClickUndo() {
       }
       hideUiElements(elementsToHide);
       break;
-    case ActionType.DROP_DOUBLE:
     case ActionType.TAKE_DOUBLE:
       elementsToHide.push(playerOneRoll, playerOneMain, playerOneStart, playerTwoRoll, playerTwoMain, playerTwoStart, document.getElementById("doubling_cube"));
 
@@ -1006,9 +981,9 @@ function onClickDoubleTake(isPlayerOne) {
 }
 
 function onClickDoubleDrop(isPlayerOne) {
-  const dropDoubleAction = new DropDoubleAction(getPlayerTurn(isPlayerOne))
-  UNDO_REDO_BUFFER.add_to_history();
-  observedGameState.currentAction = dropDoubleAction;
+  const endGameAction = new EndGameAction(getPlayerTurn(isPlayerOne))
+  UNDO_REDO_BUFFER.add_to_history(endGameAction);
+  observedGameState.currentAction = endGameAction;
 }
 
 function onClickRoll(isPlayerOne) {
@@ -1162,7 +1137,6 @@ function handlePlayerWin(didPlayerOneWin, multiplier=1, forceGameWin=false) {
   }
 
   observedGameState.currentGameValue = 1;
-  observedGameState.cubeOwnership = CubeOwnership.NEUTRAL;
   observedGameState.currentPlayerTurn = PlayerTurn.NEUTRAL;
 
   document.getElementById("doubling_cube").style.display = "flex";

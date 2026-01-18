@@ -53,6 +53,7 @@ THESE CAN BE THE SAME DIALOG. JUST NEED TO CHANGE THE CONTENT
 
 ## DOING
 - [-] Remove currentPlayerTurn from gameState
+- [ ] Replaced DROP_DOUBLE action with END_GAME
 - [ ] Remove necessity for togglePlayerTurn method
 - [ ] Migrate UNDO to use game state driven UI updates
 - [ ] Some sort of undo and redo
