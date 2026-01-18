@@ -51,10 +51,12 @@ THESE CAN BE THE SAME DIALOG. JUST NEED TO CHANGE THE CONTENT
 - [X] Different themes
 
 ## DOING
+- [ ] Migrate Doubling actions to gameState driven UI updates
 - [ ] Some sort of undo and redo
   - [-] Undo logic
   - [ ] Redo logic
   - [ ] UI for undo and redo buttons
+- [ ] Migrate Doubling actions to gameState driven UI updates
 
 
 ## TODO Later

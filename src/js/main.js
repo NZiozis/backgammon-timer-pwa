@@ -52,6 +52,10 @@ class UndoRedoBuffer {
     this.redo_stack = new Stack();
   }
 
+  can_undo() {
+    return this.undo_stack.len() > 0;
+  }
+
   add_to_history(element) {
     this.undo_stack.push(element);
     this.redo_stack.clear();
@@ -111,9 +115,9 @@ class RollAction extends Action {
 }
 
 class StartAction extends Action {
-  constructor(player_to_start) {
+  constructor(playerToStart) {
     super(ActionType.START)
-    this.player_to_start = player_to_start;
+    this.playerToStart = playerToStart;
   }
 }
 
@@ -126,7 +130,7 @@ class EndTurnAction extends Action {
 class OfferDoubleAction extends Action {
   constructor() {
     super(ActionType.OFFER_DOUBLE);
-    this.new_game_value = gameState.currentGameValue * 2;
+    this.newGameValue = gameState.currentGameValue * 2;
   }
 }
 
@@ -134,8 +138,8 @@ class DropDoubleAction extends Action {
   constructor(player_dropping) {
     super(ActionType.DROP_DOUBLE);
 
-    this.player_dropping = player_dropping;
-    this.forfeited_game_value = gameState.currentGameValue;
+    this.playerDropping = player_dropping;
+    this.forfeitedGameValue = gameState.currentGameValue;
   }
 }
 
@@ -143,9 +147,9 @@ class TakeDoubleAction extends Action {
   constructor(player_taking) {
     super(ActionType.TAKE_DOUBLE);
 
-    this.player_taking = player_taking;
-    this.previous_game_value = gameState.currentGameValue;
-    this.current_game_value = gameState.currentGameValue * 2;
+    this.playerTaking = player_taking;
+    this.previousGameValue = gameState.currentGameValue;
+    this.currentGameValue = gameState.currentGameValue * 2;
   }
 }
 
@@ -328,6 +332,8 @@ const gameState = {
   * to start a new game. Page refreshes can be caused accidentally, which we want
   * to avoid.
   */
+  currentAction: null,
+
   currentPlayerTurn: PlayerTurn.NEUTRAL,
   currentGameValue: 1, // Increaeses if doubling cube is used
   cubeOwnership: CubeOwnership.NEUTRAL,
@@ -352,8 +358,81 @@ const handleGameStateChange = {
   set(target, property, value) {
     const playerOneMainUI = document.querySelector("#player_one #main_ui");
     const playerTwoMainUI = document.querySelector("#player_two #main_ui");
+    const playerOneRollUI = document.querySelector("#player_one #roll_action_ui");
+    const playerTwoRollUI = document.querySelector("#player_two #roll_action_ui");
+    const playerOneDoubleUI = document.querySelector("#player_one #double_action_ui");
+    const playerTwoDoubleUI = document.querySelector("#player_two #double_action_ui");
 
-    if (property === "forceStopTimer" && value === true) {
+
+    if (property === "currentAction") {
+      switch (value.type) {
+        case ActionType.START:
+          Array.from(document.getElementsByClassName("start_ui")).forEach(function(it) {
+            it.style.display = "none";
+          });
+
+          observedGameState.forceStopTimer = false;
+          observedGameState.currentPlayerTurn = value.playerToStart;
+          setupTimerForPlayer(value.playerToStart === PlayerTurn.PLAYER_ONE);
+          break;
+        case ActionType.ROLL:
+          if (gameState.currentPlayerTurn === PlayerTurn.PLAYER_ONE) {
+            playerOneMainUI.style.display = "none";
+            playerOneRollUI.style.display = "flex";
+            document.querySelector("#player_one #dice_one_span").innerText = value.diceOne;
+            document.querySelector("#player_one #dice_two_span").innerText = value.diceTwo;
+          } else if (gameState.currentPlayerTurn === PlayerTurn.PLAYER_TWO) {
+            playerTwoMainUI.style.display = "none";
+            playerTwoRollUI.style.display = "flex";
+            document.querySelector("#player_two #dice_one_span").innerText = value.diceOne;
+            document.querySelector("#player_two #dice_two_span").innerText = value.diceTwo;
+          }
+          break;
+        case ActionType.END_TURN:
+          togglePlayerTurn();
+          setupTimerForPlayer(observedGameState.currentPlayerTurn === PlayerTurn.PLAYER_ONE);
+          break;
+
+        case ActionType.OFFER_DOUBLE:
+          const isPlayerOneOffering = observedGameState.currentPlayerTurn === PlayerTurn.PLAYER_ONE;
+
+          if (isPlayerOneOffering) {
+            playerOneMainUI.style.display = "none";
+            playerTwoDoubleUI.style.display = "flex";
+            playerTwoDoubleUI.querySelector("#offered_cube").innerText = value.newGameValue;
+          } else {
+            playerTwoMainUI.style.display = "none";
+            playerOneDoubleUI.style.display = "flex";
+            playerOneDoubleUI.querySelector("#offered_cube").innerText = value.newGameValue;
+          }
+          document.getElementById("doubling_cube").style.display = "none";
+          togglePlayerTurn();
+          setupTimerForPlayer(!isPlayerOneOffering);
+          break;
+        case ActionType.DROP_DOUBLE:
+          const didPlayerOneWin = value.playerDropping === PlayerTurn.PLAYER_TWO;
+          handlePlayerWin(didPlayerOneWin);
+          break;
+        case ActionType.TAKE_DOUBLE:
+          const isPlayerOneTaking = value.playerTaking === PlayerTurn.PLAYER_ONE;
+          observedGameState.currentGameValue = value.currentGameValue;
+          observedGameState.cubeOwnership = isPlayerOneTaking ? CubeOwnership.PLAYER_ONE : CubeOwnership.PLAYER_TWO;
+
+          if (isPlayerOneTaking) {
+            playerOneDoubleUI.style.display = "none";
+          } else if (value.playerTaking === PlayerTurn.PLAYER_TWO) {
+            playerTwoDoubleUI.style.display = "none";
+          }
+
+          document.getElementById("doubling_cube").style.display = "flex";
+          togglePlayerTurn();
+          setupTimerForPlayer(!isPlayerOneTaking);
+          break;
+        default:
+          console.log("Either leak via lack of break or action type not handled")
+          break;
+      }
+    } else if (property === "forceStopTimer" && value === true) {
       clearTimeout(target.playerTwoTimeoutId);
       target.playerTwoTimeoutId = null;
       clearTimeout(target.playerOneTimeoutId);
@@ -830,7 +909,10 @@ function setGenericaGameStateBasedOnAction(action) {
 }
 
 function onClickUndo() {
-  // TODO IMPLEMENT
+  if (!UNDO_REDO_BUFFER.can_undo()) {
+    console.log("Tried to undo with no actions left");
+    return;
+  }
   pauseGame();
 
   const action = UNDO_REDO_BUFFER.undo();
@@ -905,52 +987,30 @@ function onClickUndo() {
 }
 
 function onClickDone(isPlayerOne) {
-  UNDO_REDO_BUFFER.add_to_history(new EndTurnAction());
-
-  togglePlayerTurn();
-  setupTimerForPlayer(!isPlayerOne);
+  const endTurnAction = new EndTurnAction();
+  UNDO_REDO_BUFFER.add_to_history(endTurnAction);
+  observedGameState.currentAction = endTurnAction;
 }
 
 function onClickDouble(isPlayerOne) {
   observedGameState.isDoubling = true;
-  UNDO_REDO_BUFFER.add_to_history(new OfferDoubleAction());
-
-  const offeringPlayerUI = isPlayerOne ? document.getElementById("player_one") :
-      document.getElementById("player_two");
-  const decidingPlayerUI = isPlayerOne ? document.getElementById("player_two") :
-      document.getElementById("player_one")
-
-  offeringPlayerUI.querySelector("#main_ui").style.display = "none";
-
-  decidingPlayerUI.querySelector("#double_action_ui").style.display = "flex";
-  decidingPlayerUI.querySelector("#offered_cube").innerText = gameState.currentGameValue * 2;
-
-  document.getElementById("doubling_cube").style.display = "none";
-  togglePlayerTurn();
-  setupTimerForPlayer(!isPlayerOne);
+  const offerDoubleAction = new OfferDoubleAction()
+  UNDO_REDO_BUFFER.add_to_history(offerDoubleAction);
+  observedGameState.currentAction = offerDoubleAction;
 }
 
 function onClickDoubleTake(isPlayerOne) {
   observedGameState.isDoubling = false;
-  UNDO_REDO_BUFFER.add_to_history(new TakeDoubleAction(getPlayerTurn(isPlayerOne)));
-
-  observedGameState.currentGameValue = gameState.currentGameValue * 2;
-  observedGameState.cubeOwnership = isPlayerOne ? CubeOwnership.PLAYER_ONE : CubeOwnership.PLAYER_TWO;
-
-  const decidingPlayerUI = !isPlayerOne ? document.getElementById("player_two") :
-      document.getElementById("player_one")
-  decidingPlayerUI.querySelector("#double_action_ui").style.display = "none";
-
-  document.getElementById("doubling_cube").style.display = "flex";
-  togglePlayerTurn();
-  setupTimerForPlayer(!isPlayerOne);
+  const takeDoubleAction = new TakeDoubleAction(getPlayerTurn(isPlayerOne))
+  UNDO_REDO_BUFFER.add_to_history(takeDoubleAction);
+  observedGameState.currentAction = takeDoubleAction;
 }
 
 function onClickDoubleDrop(isPlayerOne) {
   observedGameState.isDoubling = false;
-  UNDO_REDO_BUFFER.add_to_history(new DropDoubleAction(getPlayerTurn(isPlayerOne)));
-
-  handlePlayerWin(!isPlayerOne);
+  const dropDoubleAction = new DropDoubleAction(getPlayerTurn(isPlayerOne))
+  UNDO_REDO_BUFFER.add_to_history();
+  observedGameState.currentAction = dropDoubleAction;
 }
 
 function onClickRoll(isPlayerOne) {
@@ -958,17 +1018,9 @@ function onClickRoll(isPlayerOne) {
   let dice_one = Math.floor(Math.random() * 6) + 1;
   let dice_two = Math.floor(Math.random() * 6) + 1;
 
-  UNDO_REDO_BUFFER.add_to_history(new RollAction(dice_one, dice_two));
-
-  const playerUI = isPlayerOne ? document.getElementById("player_one") :
-     document.getElementById("player_two");
-
-  playerUI.querySelector("#main_ui").style.display = "none";
-
-  playerUI.querySelector("#roll_action_ui").style.display = "flex";
-
-  playerUI.querySelector("#dice_one_span").innerText = dice_one;
-  playerUI.querySelector("#dice_two_span").innerText = dice_two;
+  const rollAction = new RollAction(dice_one, dice_two)
+  observedGameState.currentAction = rollAction;
+  UNDO_REDO_BUFFER.add_to_history(rollAction);
 }
 
 function onClickStart(didPlayerOneClick) {
@@ -976,12 +1028,6 @@ function onClickStart(didPlayerOneClick) {
     * If startType, then it's a coin flip to start
     * Otherwise, the player that clicked the button does first
     **/
-  observedGameState.forceStopTimer = false;
-
-  Array.from(document.getElementsByClassName("start_ui")).forEach(function(it) {
-    it.style.display = "none";
-  });
-
   let isPlayerOneFirst;
   if (observedMatchParameters.startType === StartType.ALWAYS_RANDOM
       || (observedMatchParameters.startType === StartType.FIRST_GAME_RANDOM
@@ -994,10 +1040,9 @@ function onClickStart(didPlayerOneClick) {
   }
 
   let playerToStart = getPlayerTurn(isPlayerOneFirst);
-  UNDO_REDO_BUFFER.add_to_history(new StartAction(playerToStart));
-
-  observedGameState.currentPlayerTurn = playerToStart;
-  setupTimerForPlayer(isPlayerOneFirst);
+  const startAction = new StartAction(playerToStart)
+  observedGameState.currentAction = startAction;
+  UNDO_REDO_BUFFER.add_to_history(startAction);
 }
 
 function setupMainButtons() {
