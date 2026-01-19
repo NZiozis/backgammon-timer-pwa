@@ -898,6 +898,17 @@ function setGenericGameStateBasedOnAction(action) {
   observedGameState.currentAction = action;
 }
 
+function onClickRedo() {
+  if (!UNDO_REDO_BUFFER.can_redo()) {
+    console.log("Tried to redo with no actions left");
+    return;
+  }
+  pauseGame();
+
+  const action = UNDO_REDO_BUFFER.redo();
+  setGenericGameStateBasedOnAction(action);
+}
+
 function onClickUndo() {
   if (!UNDO_REDO_BUFFER.can_undo()) {
     console.log("Tried to undo with no actions left");
