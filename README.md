@@ -53,14 +53,14 @@ THESE CAN BE THE SAME DIALOG. JUST NEED TO CHANGE THE CONTENT
 - [X] Remove currentPlayerTurn from gameState
 - [X] Replaced DROP_DOUBLE action with END_GAME
 - [X] Remove necessity for togglePlayerTurn method
-
-## DOING
-- [ ] Migrate UNDO to use game state driven UI updates
+- [X] Migrate UNDO to use game state driven UI updates
   - Make sure to do logic for END_GAME because I removed DROP_DOUBLE without doing
     any new logic
-- [ ] Some sort of undo and redo
-  - [-] Undo logic
-  - [ ] Redo logic
+
+## DOING
+- [X] Some sort of undo and redo
+  - [X] Undo logic
+  - [X] Redo logic
   - [ ] UI for undo and redo buttons
 
 
