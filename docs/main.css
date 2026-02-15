@@ -20,9 +20,9 @@ body {
 
   --banner-text-color: black;
 
-  --text-size-big: clamp(1.4rem, 4vw, 4rem);
-  --text-size-extra-big: clamp(3rem, 8vw, 8rem);
-  --text-size-small: clamp(0.8rem, 2.28vw, 2.28rem);
+  --text-size-big: clamp(1.2rem, 4vw, 4rem);
+  --text-size-extra-big: clamp(2.8rem, 8vw, 8rem);
+  --text-size-small: clamp(0.7rem, 2.28vw, 2.28rem);
 
   --sidebar-width-portrait: 15%;
   --players-container-width-portrait: 85%;
@@ -367,22 +367,42 @@ body {
   }
 }
 
+#player_two_sidebar_buttons {
+  @media all and (orientation:landscape) {
+    .undo_redo_group {
+      flex-direction: column-reverse;
+    }
+  }
+}
 
 #player_one_sidebar_buttons {
   transform: rotate(180deg);
 
+  @media all and (orientation:portrait) {
+    .undo_redo_group {
+      flex-direction: row-reverse;
+    }
+  }
+
   @media all and (orientation:landscape) {
     transform: rotate(0deg);
     flex-direction: row-reverse;
+
+    .undo_redo_group {
+      transform: scaleX(-1);
+      flex-direction: column-reverse;
+    }
   }
 }
 .sidebar_button {
+  flex: 1;
   border-radius: 100px;
 	background-color: transparent;
 	border: 0;
 	padding: 5px;
 	display: flex;
 	justify-content: center;
+  cursor: pointer;
 
   img {
     aspect-ratio: 1/1;
@@ -394,6 +414,47 @@ body {
     background-color: #00000022;
   }
 }
+
+.undo_redo_group {
+  display: flex;
+  flex: 1;
+
+  &:disabled {
+    opacity: 0.7;
+  }
+
+  @media all and (orientation:landscape) {
+    flex-direction: column;
+  }
+}
+
+.redo_button {
+  transform: scaleX(-1); /* Allows reuse of undo svg */
+
+  img {
+    aspect-ratio: 1/1;
+    max-width: 50px;
+  }
+
+  &:disabled {
+    opacity: 0.7;
+  }
+
+  @media all and (orientation:landscape) {
+    transform: scaleY(-1); /* Allows reuse of undo svg */
+  }
+}
+.undo_button {
+  &:disabled {
+    opacity: 0.7;
+  }
+
+  img {
+    aspect-ratio: 1/1;
+    max-width: 50px;
+  }
+}
+
 .settings_button {
 }
 
