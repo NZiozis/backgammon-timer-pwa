@@ -362,15 +362,24 @@ const handleGameStateChange = {
     const playerOneRollUI = document.querySelector("#player_one #roll_action_ui");
     const playerOneDoubleUI = document.querySelector("#player_one #double_action_ui");
     const playerOneStartUI = document.querySelector("#player_one #start_ui");
+    const playerOneUndoButton = document.querySelector("#player_one_sidebar_buttons .undo_button");
+    const playerOneRedoButton = document.querySelector("#player_one_sidebar_buttons .redo_button");
 
     const playerTwoMainUI = document.querySelector("#player_two #main_ui");
     const playerTwoRollUI = document.querySelector("#player_two #roll_action_ui");
     const playerTwoDoubleUI = document.querySelector("#player_two #double_action_ui");
     const playerTwoStartUI = document.querySelector("#player_two #start_ui");
+    const playerTwoUndoButton = document.querySelector("#player_two_sidebar_buttons .undo_button");
+    const playerTwoRedoButton = document.querySelector("#player_two_sidebar_buttons .redo_button");
 
     const midline = document.getElementById("midline");
     const doublingCube = document.getElementById("doubling_cube");
     const isLandscape = window.matchMedia("(orientation: landscape)").matches;
+
+    playerOneUndoButton.disabled = !UNDO_REDO_BUFFER.can_undo();
+    playerTwoUndoButton.disabled = !UNDO_REDO_BUFFER.can_undo();
+    playerOneRedoButton.disabled = !UNDO_REDO_BUFFER.can_redo();
+    playerTwoRedoButton.disabled = !UNDO_REDO_BUFFER.can_redo();
 
     if (property === "currentAction") {
       const elementsToHide = [];
@@ -758,6 +767,12 @@ function setupSidebar() {
 
   Array.from(document.getElementsByClassName("pause_button")).forEach(function(it) {
     it.onclick = pauseGame;
+  })
+  Array.from(document.getElementsByClassName("undo_button")).forEach(function(it) {
+    it.onclick = onClickUndo;
+  })
+  Array.from(document.getElementsByClassName("redo_button")).forEach(function(it) {
+    it.onclick = onClickRedo;
   })
 }
 
