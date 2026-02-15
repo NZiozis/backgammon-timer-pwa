@@ -624,7 +624,11 @@ function resumeGame() {
 
   document.getElementById("unclickable_overlay").style.display = "none";
 
-  if (observedGameState.currentAction.type !== ActionType.END_GAME) {
+  if (observedGameState.currentAction.type === ActionType.END_TURN) {
+    /* Since the actingPlayer just ended their turn, setup the timer for the
+      * other player */
+    setupTimerForPlayer(observedGameState.currentAction.actingPlayer !== PlayerTurn.PLAYER_ONE);
+  } else if (observedGameState.currentAction.type !== ActionType.END_GAME) {
     setupTimerForPlayer(observedGameState.currentAction.actingPlayer === PlayerTurn.PLAYER_ONE);
   }
 }
