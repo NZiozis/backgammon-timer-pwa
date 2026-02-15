@@ -376,10 +376,10 @@ const handleGameStateChange = {
     const doublingCube = document.getElementById("doubling_cube");
     const isLandscape = window.matchMedia("(orientation: landscape)").matches;
 
-    playerOneUndoButton.disabled = !UNDO_REDO_BUFFER.can_undo();
-    playerTwoUndoButton.disabled = !UNDO_REDO_BUFFER.can_undo();
-    playerOneRedoButton.disabled = !UNDO_REDO_BUFFER.can_redo();
-    playerTwoRedoButton.disabled = !UNDO_REDO_BUFFER.can_redo();
+    playerOneUndoButton.dataset.disabled = !UNDO_REDO_BUFFER.can_undo();
+    playerTwoUndoButton.dataset.disabled = !UNDO_REDO_BUFFER.can_undo();
+    playerOneRedoButton.dataset.disabled = !UNDO_REDO_BUFFER.can_redo();
+    playerTwoRedoButton.dataset.disabled = !UNDO_REDO_BUFFER.can_redo();
 
     if (property === "currentAction") {
       const elementsToHide = [];
