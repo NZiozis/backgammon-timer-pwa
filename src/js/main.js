@@ -564,15 +564,27 @@ const handleGameStateChange = {
     } else if (property  === "playerOneReserveTimeRemainingMs") {
       document.getElementById("player_one_reserve_time").innerText =
         formatReserveTime(value);
+      document.querySelector("#player_one #timer_ui #reserve_time").innerText =
+        formatReserveTime(value);
+
     } else if (property  === "playerTwoReserveTimeRemainingMs") {
       document.getElementById("player_two_reserve_time").innerText =
         formatReserveTime(value);
+      document.querySelector("#player_two #timer_ui #reserve_time").innerText =
+        formatReserveTime(value);
+
     } else if (property === "playerOneTotalTimeRemainingMs") {
       document.getElementById("player_one_total_time").innerText =
         formatTotalTime(value);
+      document.querySelector("#player_one #timer_ui #total_time").innerText =
+        formatTotalTime(value);
+
     } else if (property === "playerTwoTotalTimeRemainingMs") {
       document.getElementById("player_two_total_time").innerText =
         formatTotalTime(value);
+      document.querySelector("#player_two #timer_ui #total_time").innerText =
+        formatTotalTime(value);
+
     }
 
     return Reflect.set(target, property, value);

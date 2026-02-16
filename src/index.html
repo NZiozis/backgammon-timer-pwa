@@ -25,10 +25,10 @@
       </div>
       <div id="roll_action_ui" class="roll_action_ui">
         <div class="display_rolled_dice">
-          <div class="cube">
+          <div class="cube rolled_cube">
             <span id="dice_one_span">E</span>
           </div>
-          <div class="cube">
+          <div class="cube rolled_cube">
             <span id="dice_two_span">E</span>
           </div>
         </div>
@@ -51,6 +51,10 @@
       </div>
       <div id="start_ui" class="start_ui">
         <button class="action_button start_button">Start</button>
+      </div>
+      <div id="timer_ui" class="action_timer_ui">
+        <span id="total_time">0:00</span>
+        <span id="reserve_time">(0)</span>
       </div>
     </template>
   </head>
@@ -129,7 +133,7 @@
               </select>
             </div>
             <div>
-              <label for="scoreLimit">Score Limit:</label>
+              <label for="scoreLimit">Match length:</label>
               <input type="number" name="scoreLimit" min="0" id="scoreLimit" />
             </div>
             <div>
@@ -138,7 +142,7 @@
               <input type="number" name="formTotalGameTimeSeconds" min="0" id="formTotalGameTimeSeconds"/>
             </div>
             <div>
-              <label for"formReserveTimeSeconds">Reserve Time:</label>
+              <label for"formReserveTimeSeconds">Delay Time:</label>
               <input type="number" name="formReserveTimeSeconds" min="0" id="formReserveTimeSeconds"/>
             </div>
             <!-- non-form content -->

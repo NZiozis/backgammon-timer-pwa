@@ -14,6 +14,26 @@
   make deploy
 ~
 
+## Feedback
+
+### Original The use of the done buttons instead of just showing the time in
+the main display and tapping on the area to switch the time is confusing.
+Showing the time in small digits rather than as the largest part of the display
+is not helpful, in a match you don't want to be hunting for the time. Using the
+scoreboard is overly complex, should just allow players to adjust the scores
+with up down buttons or similar method. Trying to include dice rolling and cube
+actions adds unnecessary complications. A single pause button is all you need.
+The terminology in the settings is nonstandard and confusing. For example using
+score limit instead of match length. What you call reserve time is actually
+delay time.
+
+### Action items
+- [X] Change non-standard strings
+  - Score limit -> Match length
+  - Reserve time -> Delay time
+- [X] Show time as large part of display
+- [ ] Simplify using scoreboard
+
 
 ## TODO
 - [X] Customize names for players

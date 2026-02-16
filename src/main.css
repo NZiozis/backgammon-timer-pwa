@@ -231,11 +231,11 @@ body {
 
 .doubling_cube {
   @media all and (orientation:portrait) {
-    height: 100%;
+    height: 90%;
     min-width: unset !important;
   }
   @media all and (orientation:landscape) {
-    width: 100%;
+    width: 90%;
   }
 }
 
@@ -321,8 +321,32 @@ body {
 .action_ui {
   display: flex;
   flex: 1 1 auto;
-  padding: 3%;
+  flex-direction: column;
+  padding: 2%;
+
+  @media all and (orientation:landscape) {
+    flex-direction: row;
+  }
 }
+
+.action_timer_ui {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  @media all and (orientation:landscape) {
+    writing-mode: vertical-lr;
+    transform: rotate(180deg);
+  }
+
+  span {
+    font-size: 8cqh;
+    @media all and (orientation:landscape) {
+      font-size: 4cqw;
+    }
+  }
+}
+
 .player_container {
   display: flex;
 
@@ -511,12 +535,13 @@ body {
 
 .display_rolled_dice {
   display: flex;
-  width: 100%;
+  width: 80%;
   justify-content: space-evenly;
+  margin-bottom: 10px;
 
   @media all and (orientation:landscape) {
     flex-direction: column;
-    gap: 10px;
+    gap: 2cqw;
     max-width: 200px;
     span {
       transform: rotate(-90deg);
@@ -525,7 +550,7 @@ body {
 }
 
 .done_button {
-  width: 55%;
+  width: 40%;
 }
 
 .action_button {
@@ -556,11 +581,11 @@ body {
 }
 
 .roll_button {
-  width: 55%;
+  width: 45%;
 }
 
 .double_button {
-  width: 45%;
+  width: 35%;
 }
 
 .start_button {
