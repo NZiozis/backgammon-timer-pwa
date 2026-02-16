@@ -331,12 +331,14 @@ body {
 
 .action_timer_ui {
   display: flex;
-  align-items: center;
+  align-items: end;
   justify-content: center;
+  flex: 1;
 
   @media all and (orientation:landscape) {
     writing-mode: vertical-lr;
     transform: rotate(180deg);
+    align-items: start;
   }
 
   span {
@@ -586,6 +588,8 @@ body {
 
 .double_button {
   width: 35%;
+  min-width: fit-content;
+  padding-inline: 1vw;
 }
 
 .start_button {
