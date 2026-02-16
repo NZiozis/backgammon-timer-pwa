@@ -283,12 +283,15 @@ const handleMatchParametersChange = {
     } else if (property === "useTimer") {
       const timerContainers = Array.from(document.getElementsByClassName("player_time_container"));
       const infinityContainers = Array.from(document.getElementsByClassName("player_infinity"));
+      const bigTimerContainers = Array.from(document.getElementsByClassName("action_timer_ui"));
       if (value) {
         setDefaultHide(infinityContainers, true);
         setDefaultHide(timerContainers, false);
+        setDefaultHide(bigTimerContainers, false);
       } else {
         setDefaultHide(infinityContainers, false);
         setDefaultHide(timerContainers, true);
+        setDefaultHide(bigTimerContainers, true);
       }
     } else if (property === "startType") {
       // NOTHING TO BE DONE. JUST ACCOUNTED FOR
